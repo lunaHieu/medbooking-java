@@ -1,0 +1,18 @@
+-- data.sql
+-- Mật khẩu cho tất cả tài khoản dưới đây là: 123456
+
+-- 1. Tạo ADMIN
+INSERT IGNORE INTO users (UserID, Username, PasswordHash, FirstName, LastName, Email, PhoneNumber, Role, Status)
+VALUES (1, 'admin', '$2a$10$s7MopIdasn955Q4qZ.XXk..co9bWGb6xKLfSa8fwCX6tkVQySVwmm', 'Quản Trị', 'Viên', 'admin@medbook.com', '0900000001', 'ADMIN', 'Active');
+
+-- 2. Tạo BÁC SĨ (dr_binh)
+INSERT IGNORE INTO users (UserID, Username, PasswordHash, FirstName, LastName, Email, PhoneNumber, Role, Status)
+VALUES (2, 'bacsia', '$2a$10$s7MopIdasn955Q4qZ.XXk..co9bWGb6xKLfSa8fwCX6tkVQySVwmm', 'Bình', 'Nguyễn', 'dr.binh@medbook.com', '0900000002', 'DOCTOR', 'Active');
+
+-- 3. Tạo NHÂN VIÊN (staff_a)
+INSERT IGNORE INTO users (UserID, Username, PasswordHash, FirstName, LastName, Email, PhoneNumber, Role, Status)
+VALUES (3, 'staff_a', '$2a$10$s7MopIdasn955Q4qZ.XXk..co9bWGb6xKLfSa8fwCX6tkVQySVwmm', 'Hạnh', 'Trần', 'staff.a@medbook.com', '0900000003', 'MEDICAL_STAFF', 'Active');
+
+-- 4. Tạo BỆNH NHÂN (benhnhan_a)
+INSERT IGNORE INTO users (UserID, Username, PasswordHash, FirstName, LastName, Email, PhoneNumber, Role, Status)
+VALUES (4, 'benhnhan_a', '$2a$10$s7MopIdasn955Q4qZ.XXk..co9bWGb6xKLfSa8fwCX6tkVQySVwmm', 'An', 'Lê', 'patient.a@medbook.com', '0900000004', 'PATIENT', 'Active');
