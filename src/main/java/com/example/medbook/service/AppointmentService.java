@@ -306,6 +306,11 @@ public class AppointmentService {
                 .map(this::convertToDoctorProfileResponse)
                 .collect(Collectors.toList());
     }
+    // Lấy toàn bộ lịch hẹn (Cho Admin)
+    public List<AppointmentResponse> getAllAppointments() {
+        List<Appointment> list = appointmentRepository.findAll();
+        return list.stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
     //HÀM PHỤ (HELPER)
     private AppointmentResponse convertToResponse(Appointment app) {
         AppointmentResponse response = appointmentMapper.toAppointmentResponse(app);

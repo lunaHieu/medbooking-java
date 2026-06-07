@@ -2,9 +2,9 @@ spring:
   application:
     name: medbook
   datasource:
-    url: jdbc:mysql://localhost:3306/medbook1
-    username: root
-    password: Vanhieu040205!
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:medbook}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:Vanhieu040205!}
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,5 +20,7 @@ spring:
       max-file-size: 10MB
       max-request-size: 50MB
 app:
-  jwtSecret: DayLaMotKhoaBiMatRatDaiVaAnToanChoDuAnMedbookCuaBanHayDamBaoBanGiuKyNoVaKhongDeLoRaNgoai
+  jwtSecret: ${APP_JWTSECRET:DayLaMotKhoaBiMatRatDaiVaAnToanChoDuAnMedbookCuaBanHayDamBaoBanGiuKyNoVaKhongDeLoRaNgoai}
   jwtExpirationMs: 86400000
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000}

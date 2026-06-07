@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -34,6 +36,9 @@ public class AdminController {
 
     @Autowired
     private FeedbackService feedbackService;
+
+    @Autowired
+    private AppointmentService appointmentService;
     //QUẢN LÝ NGƯỜI DÙNG VÀ PROFILE (User/Doctor/Staff Creation)
     @PostMapping("/users")
     public ResponseEntity<?> createNewUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
@@ -117,5 +122,15 @@ public class AdminController {
 
         scheduleService.cancelSlotByAdmin(slotId);
         return ResponseEntity.ok(new MessageResponse("Admin đã khóa slot thành công."));
+    }
+
+    // XEM TẤT CẢ LỊCH HẸN (Cho Admin)
+    @GetMapping("/all-appointments")
+    public ResponseEntity<Map<String, Object>> getAllAppointments() {
+        List<AppointmentResponse> appointments = appointmentService.getAllAppointments();
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", appointments);
+        return ResponseEntity.ok(response);
     }
 }
