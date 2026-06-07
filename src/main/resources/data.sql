@@ -3,7 +3,7 @@
 
 -- 1. Tạo ADMIN
 INSERT IGNORE INTO users (UserID, Username, PasswordHash, FirstName, LastName, Email, PhoneNumber, Role, Status)
-VALUES (1, 'admin', '$2a$10$s7MopIdasn955Q4qZ.XXk..co9bWGb6xKLfSa8fwCX6tkVQySVwmm', 'Quản Trị', 'Viên', 'admin@medbook.com', '0900000001', 'ADMIN', 'Active');
+VALUES (1, 'admin', '$2a$10$DVlvU9hQHR6vjNY7mQQ/lOKbS01W9BBaG6ImavkSpzFspj8c/QBR2', 'Quản Trị', 'Viên', 'admin@medbook.com', '0900000001', 'ADMIN', 'Active');
 
 -- 2. Tạo BÁC SĨ (dr_binh)
 INSERT IGNORE INTO users (UserID, Username, PasswordHash, FirstName, LastName, Email, PhoneNumber, Role, Status)
