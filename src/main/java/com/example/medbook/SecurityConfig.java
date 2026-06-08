@@ -68,6 +68,7 @@ public class SecurityConfig {
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Widen CORS filter path mapping to global wildcard to cover all routes
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
