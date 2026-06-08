@@ -81,6 +81,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers("/api/auth/**").permitAll() // Mở cho Đăng ký/Đăng nhập
                                 .requestMatchers("/api/public/**").permitAll()
+                                .requestMatchers("/api/services", "/api/services/**").permitAll()
                                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/doctor/**").hasAuthority("ROLE_DOCTOR")
                                 .requestMatchers("/api/staff/**").hasAuthority("ROLE_MEDICAL_STAFF")
