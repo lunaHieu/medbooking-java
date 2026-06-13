@@ -80,7 +80,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/auth/**").permitAll() // Mở cho Đăng ký/Đăng nhập
+                        auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers("/auth/**").permitAll() // Mở cho Đăng ký/Đăng nhập
                                 .requestMatchers("/public/**").permitAll()
                                 .requestMatchers("/services", "/services/**").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
