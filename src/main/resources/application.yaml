@@ -30,4 +30,5 @@ app:
   jwtExpirationMs: 86400000
 
   cors:
-    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://medbooking-client-hdbm.vercel.app}
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://medbooking-client-flax.vercel.app,https://medbooking-client-hdbm.vercel.app}
+

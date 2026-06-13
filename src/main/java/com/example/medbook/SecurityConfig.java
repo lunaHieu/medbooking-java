@@ -59,8 +59,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Cho phép Frontend (localhost:3000) gọi sang
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
+        java.util.List<String> origins = new java.util.ArrayList<>();
+        origins.add("http://localhost:3000");
+        origins.add("https://medbooking-client-flax.vercel.app");
+        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
+            origins.addAll(Arrays.asList(allowedOrigins.split(",")));
+        }
+        java.util.List<String> uniqueOrigins = origins.stream().distinct().collect(java.util.stream.Collectors.toList());
+        configuration.setAllowedOrigins(uniqueOrigins);
+
         // Cho phép các method quan trọng
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         // Cho phép mọi header (như Authorization, Content-Type...)
