@@ -56,11 +56,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Cho phép các domain của bạn
-        configuration.setAllowedOrigins(List.of(
-            "https://medbooking-client-e19voivwz-medbooking.vercel.app", 
-            "https://medbooking-client-flax.vercel.app", 
-            "http://localhost:3000"
+        // Cho phép các domain động (Vercel, Localhost)
+        configuration.setAllowedOriginPatterns(List.of(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://*.vercel.app",
+            "https://medbooking-client-e19voivwz-medbooking.vercel.app",
+            "https://medbooking-client-flax.vercel.app"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(Arrays.asList("*")); // Cho phép tất cả headers
@@ -81,9 +83,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Quan trọng: Cho phép Preflight
                 .requestMatchers("/auth/**", "/api/auth/**").permitAll()
+                .requestMatchers("/forgot-password/**", "/api/forgot-password/**").permitAll()
                 .requestMatchers("/public/**", "/api/public/**").permitAll()
                 .requestMatchers("/services/**", "/api/services/**").permitAll()
                 .requestMatchers("/storage/**", "/api/storage/**").permitAll()
+                .requestMatchers("/error", "/api/error").permitAll() // Cho phép hiển thị lỗi thật
                 .requestMatchers("/admin/**", "/api/admin/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/doctor/**", "/api/doctor/**").hasAuthority("ROLE_DOCTOR")
                 .requestMatchers("/staff/**", "/api/staff/**").hasAuthority("ROLE_MEDICAL_STAFF")
@@ -92,7 +96,7 @@ public class SecurityConfig {
             );
 
         http.authenticationProvider(authenticationProvider());
-      //  http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }

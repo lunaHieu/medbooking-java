@@ -10,7 +10,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping({"/services", "/public/services"})
-@CrossOrigin(origins = {"https://medbooking-client-flax.vercel.app", "http://localhost:3000"})
 public class PublicServiceController {
 
     @Autowired

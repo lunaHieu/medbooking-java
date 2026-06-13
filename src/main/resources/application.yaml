@@ -1,14 +1,16 @@
 server:
   port: ${PORT:8080}
+  servlet:
+    context-path: /api
 
 spring:
   application:
     name: medbook
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:railway}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:medbook}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD:Vanhieu040205!}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -25,17 +27,28 @@ spring:
 
   sql:
     init:
-      mode: ${SQL_INIT_MODE:always}
+      mode: ${SQL_INIT_MODE:never}
 
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 50MB
 
-app:
-  jwtSecret: ${APP_JWTSECRET}
-  jwtExpirationMs: 86400000
+  mail:
+    host: ${SPRING_MAIL_HOST:smtp.gmail.com}
+    port: ${SPRING_MAIL_PORT:587}
+    username: ${SPRING_MAIL_USERNAME:}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
+app:
+  jwtSecret: ${APP_JWTSECRET:motChuoiBiMatRatDaiVaKhoDoanChoMedbookingLocalhostHieuOi1234567890}
+  jwtExpirationMs: 86400000
   cors:
     allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://medbooking-client-flax.vercel.app,https://medbooking-client-hdbm.vercel.app}
 
@@ -46,12 +59,16 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:h2:mem:medbook;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:medbook;MODE=MySQL;DATABASE_TO_LOWER=true;CASE_INSENSITIVE_IDENTIFIERS=true;DB_CLOSE_DELAY=-1
     driver-class-name: org.h2.Driver
     username: sa
     password:
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
+    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
+  sql:
+    init:
+      mode: always

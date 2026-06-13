@@ -21,7 +21,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
-@CrossOrigin(origins = {"https://medbooking-client-flax.vercel.app", "http://localhost:3000"})
 public class AdminController {
 
     @Autowired
@@ -45,6 +44,46 @@ public class AdminController {
     @PostMapping("/users")
     public ResponseEntity<?> createNewUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
         return adminService.createUser(createUserRequest);
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserProfileResponse>> getAllUsers(
+            @RequestParam(value = "role", required = false) String role,
+            @RequestParam(value = "search", required = false) String search) {
+        return ResponseEntity.ok(adminService.getAllUsers(role, search));
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserProfileResponse> getUserById(@PathVariable Integer id) {
+        return ResponseEntity.ok(adminService.getUserById(id));
+    }
+
+    @PostMapping(value = "/users/{id}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> adminUpdateUser(
+            @PathVariable Integer id,
+            @RequestParam("FullName") String fullName,
+            @RequestParam("Username") String username,
+            @RequestParam(value = "Email", required = false) String email,
+            @RequestParam("PhoneNumber") String phoneNumber,
+            @RequestParam(value = "password", required = false) String password,
+            @RequestParam("Role") String role,
+            @RequestParam("Status") String status,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar) {
+        return adminService.adminUpdateUser(id, fullName, username, email, phoneNumber, password, role, status, avatar);
+    }
+
+    @PostMapping(value = "/users", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> adminCreateUserMultipart(
+            @RequestParam("FullName") String fullName,
+            @RequestParam("Username") String username,
+            @RequestParam(value = "Email", required = false) String email,
+            @RequestParam("PhoneNumber") String phoneNumber,
+            @RequestParam("password") String password,
+            @RequestParam("Role") String role,
+            @RequestParam("Status") String status,
+            @RequestParam(value = "Gender", required = false) String gender,
+            @RequestParam(value = "DateOfBirth", required = false) String dateOfBirth) {
+        return adminService.adminCreateUserMultipart(fullName, username, email, phoneNumber, password, role, status, gender, dateOfBirth);
     }
 
     //CRUD CHUYÊN KHOA (Specialty Management)
