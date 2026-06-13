@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/public")
+@CrossOrigin(origins = {"https://medbooking-client-flax.vercel.app", "http://localhost:3000"})
 public class PublicController {
 
     @Autowired
@@ -22,14 +22,25 @@ public class PublicController {
     @Autowired
     private ScheduleService scheduleService;
 
-    //CHUYÊN KHOA (SPECIALTIES)
-    @GetMapping("/specialties")
-    public ResponseEntity<List<SpecialtyResponse>> getAllSpecialties() {
+    // CHUYEN KHOA (SPECIALTIES)
+    @GetMapping("/public/specialties")
+    public ResponseEntity<List<SpecialtyResponse>> getAllSpecialties(@RequestParam(required = false, name = "search") String search) {
         List<SpecialtyResponse> specialties = specialtyService.getAllSpecialties();
+        if (search != null && !search.trim().isEmpty()) {
+            String lowerSearch = search.toLowerCase();
+            List<SpecialtyResponse> filtered = new java.util.ArrayList<>();
+            for (SpecialtyResponse s : specialties) {
+                if (s.getSpecialtyName() != null && s.getSpecialtyName().toLowerCase().contains(lowerSearch)) {
+                    filtered.add(s);
+                }
+            }
+            specialties = filtered;
+        }
         return ResponseEntity.ok(specialties);
     }
-    //XEM SLOT RẢNH THEO CHUYÊN KHOA
-    @GetMapping("/specialties/{specialtyId}/available-slots")
+
+    // XEM SLOT RANH THEO CHUYEN KHOA
+    @GetMapping("/public/specialties/{specialtyId}/available-slots")
     public ResponseEntity<List<ScheduleResponse>> getSlotsBySpecialty(
             @PathVariable Integer specialtyId,
             @RequestParam(required = false) LocalDate date) {
@@ -37,50 +48,53 @@ public class PublicController {
         List<ScheduleResponse> slots = scheduleService.getAvailableSlotsBySpecialty(specialtyId, date);
         return ResponseEntity.ok(slots);
     }
-    @GetMapping("/specialties/{id}")
+
+    @GetMapping("/public/specialties/{id}")
     public ResponseEntity<SpecialtyResponse> getSpecialtyById(@PathVariable Integer id) {
         SpecialtyResponse specialty = specialtyService.getSpecialtyById(id);
         return ResponseEntity.ok(specialty);
     }
 
-    //BÁC SĨ (DOCTORS)
-    @GetMapping("/doctors")
-    public ResponseEntity<List<DoctorProfileResponse>> getAllDoctors() {
+    // BAC SI (DOCTORS)
+    @GetMapping("/public/doctors")
+    public ResponseEntity<List<DoctorProfileResponse>> getDoctors(
+            @RequestParam(required = false, name = "search") String search,
+            @RequestParam(required = false, name = "query") String query,
+            @RequestParam(required = false, name = "specialty_id") Integer specialtyId,
+            @RequestParam(required = false, name = "specialtyId") Integer specialtyIdCamel) {
+        String finalSearch = (search != null) ? search : query;
+        Integer finalSpecialtyId = (specialtyId != null) ? specialtyId : specialtyIdCamel;
+
+        if ((finalSearch != null && !finalSearch.trim().isEmpty()) || finalSpecialtyId != null) {
+            List<DoctorProfileResponse> doctors = doctorService.searchDoctor(finalSearch, finalSpecialtyId);
+            return ResponseEntity.ok(doctors);
+        }
         List<DoctorProfileResponse> doctors = doctorService.getAllDoctors();
         return ResponseEntity.ok(doctors);
     }
 
-    @GetMapping("/doctors/{id}")
+    @GetMapping("/public/doctors/{id}")
     public ResponseEntity<DoctorProfileResponse> getDoctorById(@PathVariable Integer id) {
         DoctorProfileResponse doctor = doctorService.getDoctorById(id);
         return ResponseEntity.ok(doctor);
     }
 
-    @GetMapping("/doctors/{doctorId}/ratings")
+    @GetMapping("/public/doctors/{doctorId}/ratings")
     public ResponseEntity<RatingSummaryResponse> getDoctorRatings(@PathVariable Integer doctorId) {
         RatingSummaryResponse summary = feedbackService.getDoctorRatingSummary(doctorId);
         return ResponseEntity.ok(summary);
     }
 
-    @GetMapping("/doctors/{doctorId}/feedbacks")
+    @GetMapping("/public/doctors/{doctorId}/feedbacks")
     public ResponseEntity<List<FeedbackResponse>> getDoctorFeedbacks(@PathVariable Integer doctorId) {
         List<FeedbackResponse> feedbacks = feedbackService.getDetailedDoctorFeedback(doctorId);
         return ResponseEntity.ok(feedbacks);
     }
 
-    @GetMapping("/doctors/search")
-    public ResponseEntity<List<DoctorProfileResponse>> getDoctors(
-            @RequestParam(required = false) String query,
-            @RequestParam(required = false) Integer specialtyId) {
-        List<DoctorProfileResponse> doctors = doctorService.searchDoctor(query, specialtyId);
-        return ResponseEntity.ok(doctors);
-    }
+    // LICH RANH CUA BAC SI (PUBLIC SLOTS)
 
-
-    // LỊCH RẢNH CỦA BÁC SĨ (PUBLIC SLOTS)
-
-    //Lấy lịch rảnh theo khoảng ngày (Mặc định 1 ngày nếu không truyền days)
-    @GetMapping("/doctors/{doctorId}/slots")
+    // Lay lich ranh theo khoang ngay (Mac dinh 1 ngay neu khong truyen days)
+    @GetMapping("/public/doctors/{doctorId}/slots")
     public ResponseEntity<List<ScheduleResponse>> getPublicAvailableSlots(
             @PathVariable Integer doctorId,
             @RequestParam(required = false) Integer days) {
@@ -89,8 +103,8 @@ public class PublicController {
         return ResponseEntity.ok(slots);
     }
 
-    //Lấy lịch rảnh theo ngày cụ thể
-    @GetMapping("/doctors/{doctorId}/slots/date")
+    // Lay lich ranh theo ngay cu the
+    @GetMapping("/public/doctors/{doctorId}/slots/date")
     public ResponseEntity<List<ScheduleResponse>> getDoctorAvailabilityByDate(
             @PathVariable Integer doctorId,
             @RequestParam("target") LocalDate targetDate) {
@@ -99,8 +113,8 @@ public class PublicController {
         return ResponseEntity.ok(slots);
     }
 
-    //FEEDBACK NỔI BẬT
-    @GetMapping("/feedbacks/featured")
+    // FEEDBACK NOI BAT
+    @GetMapping("/public/feedbacks/featured")
     public ResponseEntity<List<FeedbackResponse>> getFeaturedFeedbacks() {
         List<FeedbackResponse> feedbacks = feedbackService.getFeaturedFeedbacks();
         return ResponseEntity.ok(feedbacks);

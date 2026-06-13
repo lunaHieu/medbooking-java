@@ -24,6 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/doctor")
 @PreAuthorize("hasRole('DOCTOR')")
+@CrossOrigin(origins = {"https://medbooking-client-flax.vercel.app", "http://localhost:3000"})
 public class DoctorController {
 
     @Autowired

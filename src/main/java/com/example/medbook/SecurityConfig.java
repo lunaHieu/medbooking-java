@@ -91,8 +91,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers("/auth/**").permitAll() // Mở cho Đăng ký/Đăng nhập
-                                .requestMatchers("/public/**").permitAll()
-                                .requestMatchers("/services", "/services/**").permitAll()
+                                .requestMatchers("/public/**", "/api/public/**", "/services/**", "/api/services/**").permitAll()
                                 .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
                                 .requestMatchers("/doctor/**").hasAuthority("ROLE_DOCTOR")
                                 .requestMatchers("/staff/**").hasAuthority("ROLE_MEDICAL_STAFF")

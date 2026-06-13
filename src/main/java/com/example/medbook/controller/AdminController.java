@@ -20,6 +20,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/admin")
+@CrossOrigin(origins = {"https://medbooking-client-flax.vercel.app", "http://localhost:3000"})
 public class AdminController {
 
     @Autowired
