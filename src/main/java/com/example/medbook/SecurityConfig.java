@@ -82,7 +82,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Quan trọng: Cho phép Preflight
                 .requestMatchers("/auth/**", "/api/auth/**").permitAll()
                 .requestMatchers("/public/**", "/api/public/**").permitAll()
-                .requestMatchers("/services/**", "/api/services/**").permitAll()
+                .requestMatchers("/services/**", "/services/**").permitAll()
                 .requestMatchers("/storage/**", "/api/storage/**").permitAll()
                 .requestMatchers("/admin/**", "/api/admin/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/doctor/**", "/api/doctor/**").hasAuthority("ROLE_DOCTOR")
@@ -92,7 +92,7 @@ public class SecurityConfig {
             );
 
         http.authenticationProvider(authenticationProvider());
-        http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+      //  http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
     }
