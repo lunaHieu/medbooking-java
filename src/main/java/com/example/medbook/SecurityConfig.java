@@ -80,13 +80,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/api/auth/**").permitAll() // Mở cho Đăng ký/Đăng nhập
-                                .requestMatchers("/api/public/**").permitAll()
-                                .requestMatchers("/api/services", "/api/services/**").permitAll()
-                                .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers("/api/doctor/**").hasAuthority("ROLE_DOCTOR")
-                                .requestMatchers("/api/staff/**").hasAuthority("ROLE_MEDICAL_STAFF")
-                                .requestMatchers("/api/patient/**").hasAuthority("ROLE_PATIENT")
+                        auth.requestMatchers("/auth/**").permitAll() // Mở cho Đăng ký/Đăng nhập
+                                .requestMatchers("/public/**").permitAll()
+                                .requestMatchers("/services", "/services/**").permitAll()
+                                .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                                .requestMatchers("/doctor/**").hasAuthority("ROLE_DOCTOR")
+                                .requestMatchers("/staff/**").hasAuthority("ROLE_MEDICAL_STAFF")
+                                .requestMatchers("/patient/**").hasAuthority("ROLE_PATIENT")
                                 .anyRequest().authenticated() // Mọi thứ khác cần đăng nhập
                 );
 

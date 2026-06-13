@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/public")
+@RequestMapping("/public")
 public class PublicController {
 
     @Autowired
@@ -21,8 +21,6 @@ public class PublicController {
     private DoctorService doctorService;
     @Autowired
     private ScheduleService scheduleService;
-    @Autowired
-    private ServiceService serviceService;
 
     //CHUYÊN KHOA (SPECIALTIES)
     @GetMapping("/specialties")
@@ -101,24 +99,6 @@ public class PublicController {
         return ResponseEntity.ok(slots);
     }
 
-    //DỊCH VỤ (SERVICES)
-    @GetMapping("/services")
-    public ResponseEntity<List<ServiceResponse>> getAllServices() {
-        List<ServiceResponse> services = serviceService.getAllServices();
-        return ResponseEntity.ok(services);
-    }
-
-    @GetMapping("/services/{id}")
-    public ResponseEntity<ServiceResponse> getServiceById(@PathVariable Integer id) {
-        ServiceResponse service = serviceService.getServiceById(id);
-        return ResponseEntity.ok(service);
-    }
-
-    @GetMapping("/services/{serviceId}/doctors")
-    public ResponseEntity<List<DoctorProfileResponse>> getDoctorsByService(@PathVariable Integer serviceId) {
-        List<DoctorProfileResponse> doctors = doctorService.getDoctorsByService(serviceId);
-        return ResponseEntity.ok(doctors);
-    }
     //FEEDBACK NỔI BẬT
     @GetMapping("/feedbacks/featured")
     public ResponseEntity<List<FeedbackResponse>> getFeaturedFeedbacks() {

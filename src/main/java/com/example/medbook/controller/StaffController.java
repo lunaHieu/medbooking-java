@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/staff")
+@RequestMapping("/staff")
 @PreAuthorize("hasRole('MEDICAL_STAFF') or hasRole('ADMIN')")
 public class StaffController {
 
