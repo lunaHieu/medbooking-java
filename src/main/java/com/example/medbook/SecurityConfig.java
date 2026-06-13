@@ -88,16 +88,21 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers("/auth/**").permitAll() // Mở cho Đăng ký/Đăng nhập
-                                .requestMatchers("/public/**", "/api/public/**", "/services/**", "/api/services/**").permitAll()
-                                .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                                .requestMatchers("/doctor/**").hasAuthority("ROLE_DOCTOR")
-                                .requestMatchers("/staff/**").hasAuthority("ROLE_MEDICAL_STAFF")
-                                .requestMatchers("/patient/**").hasAuthority("ROLE_PATIENT")
-                                .anyRequest().authenticated() // Mọi thứ khác cần đăng nhập
-                );
+                .authorizeHttpRequests(auth -> auth
+    // Mở khóa toàn bộ các đường dẫn có thể bị sai lệch do context-path
+    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+    .requestMatchers("/auth/**", "/api/auth/**").permitAll()
+    // Dùng cả hai cách viết để đảm bảo dù có hay không có /api phía trước đều khớp
+    .requestMatchers("/public/**", "/api/public/**").permitAll()
+    .requestMatchers("/services/**", "/api/services/**").permitAll()
+    
+    // Phân quyền chuẩn
+    .requestMatchers("/admin/**", "/api/admin/**").hasAuthority("ROLE_ADMIN")
+    .requestMatchers("/doctor/**", "/api/doctor/**").hasAuthority("ROLE_DOCTOR")
+    .requestMatchers("/staff/**", "/api/staff/**").hasAuthority("ROLE_MEDICAL_STAFF")
+    .requestMatchers("/patient/**", "/api/patient/**").hasAuthority("ROLE_PATIENT")
+    .anyRequest().authenticated()
+);
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
