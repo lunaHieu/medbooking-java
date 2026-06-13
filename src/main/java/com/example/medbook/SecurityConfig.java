@@ -59,14 +59,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        java.util.List<String> origins = new java.util.ArrayList<>();
-        origins.add("http://localhost:3000");
-        origins.add("https://medbooking-client-flax.vercel.app");
-        if (allowedOrigins != null && !allowedOrigins.isEmpty()) {
-            origins.addAll(Arrays.asList(allowedOrigins.split(",")));
-        }
-        java.util.List<String> uniqueOrigins = origins.stream().distinct().collect(java.util.stream.Collectors.toList());
-        configuration.setAllowedOrigins(uniqueOrigins);
+        configuration.setAllowedOrigins(java.util.List.of("https://medbooking-client-flax.vercel.app", "http://localhost:3000"));
+
 
         // Cho phép các method quan trọng
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
