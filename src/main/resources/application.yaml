@@ -8,9 +8,9 @@ spring:
     name: medbook
 
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:medbook}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:Vanhieu040205!}
+    url: jdbc:mysql://${MYSQLHOST:${DB_HOST:localhost}}:${MYSQLPORT:${DB_PORT:3306}}/${MYSQLDATABASE:${DB_NAME:medbook}}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${MYSQLUSER:${DB_USERNAME:root}}
+    password: ${MYSQLPASSWORD:${DB_PASSWORD:Vanhieu040205!}}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
