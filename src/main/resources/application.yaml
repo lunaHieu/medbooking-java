@@ -50,7 +50,7 @@ app:
   jwtSecret: ${APP_JWTSECRET:motChuoiBiMatRatDaiVaKhoDoanChoMedbookingLocalhostHieuOi1234567890}
   jwtExpirationMs: 86400000
   cors:
-    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:3000,https://medbooking-client-flax.vercel.app,https://medbooking-client-hdbm.vercel.app}
+    allowed-origins: "https://medbooking-client-*.vercel.app,http://localhost:3000"
 
 ---
 # Development profile - use in-memory H2 to run locally without MySQL/Docker
