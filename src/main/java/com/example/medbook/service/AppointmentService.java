@@ -158,6 +158,70 @@ public class AppointmentService {
         appointmentRepository.save(appointment);
     }
 
+    public List<AppointmentResponse> getPendingAppointments() {
+        List<Appointment> list = appointmentRepository.findByStatus(STATUS_PENDING);
+        return list.stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void checkInAppointment(Integer appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Lịch hẹn với ID: " + appointmentId));
+        if (!STATUS_CONFIRMED.equalsIgnoreCase(appointment.getStatus())) {
+            throw new IllegalStateException("Lịch hẹn phải ở trạng thái Confirmed trước khi check-in.");
+        }
+        appointment.setStatus(STATUS_CHECKED_IN);
+        appointmentRepository.save(appointment);
+    }
+
+    @Transactional
+    public void cancelAppointmentByStaff(Integer appointmentId, String reason) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Lịch hẹn với ID: " + appointmentId));
+        if (STATUS_COMPLETED.equalsIgnoreCase(appointment.getStatus()) || STATUS_CANCELLED.equalsIgnoreCase(appointment.getStatus())) {
+            throw new IllegalStateException("Lịch hẹn đã hoàn tất hoặc đã hủy.");
+        }
+        appointment.setStatus(STATUS_CANCELLED);
+        appointment.setCancellationReason(reason);
+        appointmentRepository.save(appointment);
+
+        if (appointment.getSlot() != null) {
+            DoctorAvailability slot = appointment.getSlot();
+            slot.setStatus(STATUS_AVAILABLE);
+            availabilityRepository.save(slot);
+        }
+    }
+
+    @Transactional
+    public AppointmentResponse staffCreateAppointment(Integer slotId, Integer patientId, String symptoms, String status) {
+        User patient = userRepository.findById(patientId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bệnh nhân với UserID: " + patientId));
+
+        DoctorAvailability slot = availabilityRepository.findById(slotId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khung giờ với SlotID: " + slotId));
+
+        if (!STATUS_AVAILABLE.equalsIgnoreCase(slot.getStatus())) {
+            throw new IllegalArgumentException("Khung giờ này không khả dụng.");
+        }
+
+        slot.setStatus(STATUS_BOOKED);
+        availabilityRepository.save(slot);
+
+        Appointment appointment = new Appointment();
+        appointment.setPatient(patient);
+        appointment.setDoctor(slot.getDoctor());
+        appointment.setSlot(slot);
+        appointment.setStatus(status != null ? status : STATUS_PENDING);
+        appointment.setStartTime(slot.getStartTime());
+        appointment.setInitialSymptoms(symptoms);
+        
+        long duration = java.time.Duration.between(slot.getStartTime(), slot.getEndTime()).toMinutes();
+        appointment.setEstimatedDuration((int) duration);
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
+        return convertToResponse(savedAppointment);
+    }
+
     // 6. Hoàn tất lịch hẹn (Doctor)
     @Transactional
     public void completeAppointment(Integer appointmentId, String doctorUsername) {

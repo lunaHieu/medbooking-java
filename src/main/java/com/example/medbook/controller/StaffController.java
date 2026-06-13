@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/staff")
@@ -49,12 +50,56 @@ public class StaffController {
     }
 
     // Thống kê (Stats Cards)
-    @GetMapping("/dashboard/stats")
+    @GetMapping({"/dashboard-stats", "/dashboard/stats"})
     public ResponseEntity<Map<String, Long>> getStats() {
         return ResponseEntity.ok(appointmentService.getDailyStats());
     }
 
-    //QUẢN LÝ LỊCH HẸN (APPOINTMENT)
+    // Lấy danh sách lịch hẹn Pending
+    @GetMapping("/pending-appointments")
+    public ResponseEntity<?> getPendingAppointments() {
+        List<AppointmentResponse> pendingList = appointmentService.getPendingAppointments();
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", pendingList);
+        response.put("count", pendingList.size());
+        return ResponseEntity.ok(response);
+    }
+
+    // Duyệt lịch hẹn
+    @PatchMapping("/appointments/{id}/confirm")
+    public ResponseEntity<?> confirmAppointment(@PathVariable Integer id) {
+        appointmentService.confirmAppointment(id);
+        return ResponseEntity.ok(Map.of("message", "Duyệt lịch hẹn thành công."));
+    }
+
+    // Check-in bệnh nhân
+    @PatchMapping("/appointments/{id}/check-in")
+    public ResponseEntity<?> checkInAppointment(@PathVariable Integer id) {
+        appointmentService.checkInAppointment(id);
+        return ResponseEntity.ok(Map.of("message", "Check-in bệnh nhân thành công."));
+    }
+
+    // Hủy lịch hẹn kèm lí do
+    @PatchMapping("/appointments/{id}/cancel")
+    public ResponseEntity<?> cancelAppointment(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+        String reason = body.getOrDefault("reason", "Hủy bởi nhân viên phòng khám");
+        appointmentService.cancelAppointmentByStaff(id, reason);
+        return ResponseEntity.ok(Map.of("message", "Hủy lịch hẹn thành công."));
+    }
+
+    // Staff tạo lịch hẹn trực tiếp (Walk-in)
+    @PostMapping(value = "/appointments", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> staffCreateAppointment(
+            @RequestParam("PatientID") Integer patientId,
+            @RequestParam("SlotID") Integer slotId,
+            @RequestParam(value = "InitialSymptoms", required = false) String symptoms,
+            @RequestParam(value = "Status", required = false) String status) {
+        AppointmentResponse response = appointmentService.staffCreateAppointment(slotId, patientId, symptoms, status);
+        return ResponseEntity.status(201).body(response);
+    }
+
+    // QUẢN LÝ LỊCH HẸN (APPOINTMENT)
 
     // Xem tất cả lịch hẹn hôm nay (Để gọi điện xác nhận)
     @GetMapping("/appointments/all-today")
@@ -62,7 +107,7 @@ public class StaffController {
         return ResponseEntity.ok(appointmentService.getAllAppointmentsForToday());
     }
 
-    //Thay đổi trạng thái (Confirm, Check-in, Start, Cancel)
+    //Thay đổi trạng thái (Confirm, Check-in, Start, Cancel) - Giữ lại để tương thích ngược
     @PutMapping("/appointments/{id}/status")
     public ResponseEntity<String> updateStatus(
             @PathVariable Integer id,
