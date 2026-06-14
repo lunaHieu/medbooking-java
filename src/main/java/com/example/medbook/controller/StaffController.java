@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/staff")
-@PreAuthorize("hasRole('MEDICAL_STAFF') or hasRole('ADMIN')")
+@RequestMapping({"/staff", "/api/staff"})
+@PreAuthorize("hasAnyAuthority('ROLE_MEDICAL_STAFF', 'NhanVien', 'STAFF', 'ROLE_NHANVIEN', 'ROLE_STAFF', 'ROLE_ADMIN', 'QuanTriVien', 'ADMIN', 'ROLE_QUANTRIVIEN', 'ROLE_ROLE_ADMIN')")
 public class StaffController {
 
     @Autowired
