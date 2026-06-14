@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,10 +20,12 @@ public class MedicalRecord {
     @Column(name = "RecordID")
     private Integer recordId;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PatientID", nullable = false)
     private User patient;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DoctorID", nullable = false)
     private Doctor doctor;
@@ -37,11 +40,13 @@ public class MedicalRecord {
     private LocalDateTime createdAt;
 
     // Liên kết 1-1 với Appointment (1 lịch hẹn chỉ có 1 bệnh án)
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "AppointmentID", unique = true, nullable = false)
     private Appointment appointment;
 
     //Liên kết 1-N với ExamResults (1 bệnh án có nhiều file xét nghiệm)
+    @JsonIgnore
     @OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExamResults> examResults;
 

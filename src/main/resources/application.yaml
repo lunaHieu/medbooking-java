@@ -3,6 +3,12 @@ server:
   servlet:
     context-path: /api
 
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.hibernate: INFO
+
 spring:
   application:
     name: medbook
@@ -22,7 +28,7 @@ spring:
       ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: true
+    show-sql: false
     defer-datasource-initialization: true
 
   sql:

@@ -1,6 +1,7 @@
 package com.example.medbook.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.print.Doc;
 
@@ -17,11 +18,13 @@ public class Doctor {
     @Column(name = "ImageURL")
     private String imageURL;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
     @JoinColumn(name = "DoctorID")
     private User user;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SpecialtyID", nullable = false)
     private Specialty specialty;

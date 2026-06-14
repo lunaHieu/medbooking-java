@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,6 +32,7 @@ public class ExamResults {
     private LocalDateTime uploadedAt;
 
     // Liên kết N-1: Nhiều kết quả thuộc về 1 MedicalRecord
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RecordID", nullable = false)
     private MedicalRecord medicalRecord;

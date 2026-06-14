@@ -3,6 +3,7 @@ package com.example.medbook.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
 
@@ -26,6 +27,7 @@ public class Service {
     @Column(name = "ImageURL")
     private String imageURL;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SpecialtyID")
     private Specialty specialty;

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -31,6 +32,7 @@ public class Feedbacks {
     @Column(name = "CreatedAt")
     private LocalDateTime createdAt;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "AppointmentID", nullable = false)
     private Appointment appointment;
