@@ -21,6 +21,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @GetMapping({"/user/profile", "/api/user/profile"})
+    public ResponseEntity<UserProfileResponse> getMyProfile(
+            @AuthenticationPrincipal UserDetailsImpl currentUser) {
+        UserProfileResponse response = userService.getMyProfile(currentUser);
+        return ResponseEntity.ok(response);
+    }
+
     @PutMapping({"/user/profile", "/api/user/profile"})
     public ResponseEntity<UserProfileResponse> updateProfile(
             @RequestBody UpdateProfileRequest request,
