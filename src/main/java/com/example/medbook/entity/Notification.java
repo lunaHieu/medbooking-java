@@ -20,6 +20,7 @@ public class Notification {
     @ManyToOne @JoinColumn(name = "AppointmentID")
     private Appointment appointment;
 
+    private String title;
     private String notificationType;
     private String content;
     private String channel;

@@ -34,7 +34,7 @@ public class Feedbacks {
 
     @JsonIgnore
     @OneToOne
-    @JoinColumn(name = "AppointmentID", nullable = false)
+    @JoinColumn(name = "AppointmentID", nullable = true)
     private Appointment appointment;
 
     @PrePersist

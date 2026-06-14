@@ -5,11 +5,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 import java.util.List;
 
 @Repository
 public interface FeedbackRepository extends JpaRepository<Feedbacks, Integer> {
+
+    @Modifying
+    @Query("DELETE FROM Feedbacks f WHERE f.appointment.patient.userId = :patientId")
+    void deleteByPatientId(@Param("patientId") Integer patientId);
 
     Optional<Feedbacks> findByAppointment_AppointmentId(Integer appointmentId);
 

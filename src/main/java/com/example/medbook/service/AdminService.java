@@ -1,6 +1,7 @@
 package com.example.medbook.service;
 
 import com.example.medbook.dto.request.CreateUserRequest;
+import com.example.medbook.dto.request.AdminUpdatePatientRequest;
 import com.example.medbook.dto.response.MessageResponse;
 import com.example.medbook.entity.Doctor;
 import com.example.medbook.entity.Specialty;
@@ -45,6 +46,22 @@ public class AdminService {
     DoctorRepository doctorRepository;
     @Autowired
     SpecialtyRepository specialtyRepository;
+
+    @Autowired
+    private com.example.medbook.repository.UserRelationRepository userRelationRepository;
+    @Autowired
+    private com.example.medbook.repository.NotificationRepository notificationRepository;
+    @Autowired
+    private com.example.medbook.repository.FeedbackRepository feedbackRepository;
+    @Autowired
+    private com.example.medbook.repository.MedicalRecordRepository medicalRecordRepository;
+    @Autowired
+    private com.example.medbook.repository.AppointmentRepository appointmentRepository;
+    @Autowired
+    private com.example.medbook.repository.DoctorAvailabilityRepository doctorAvailabilityRepository;
+    @Autowired
+    private com.example.medbook.repository.OtpRepository otpRepository;
+
 
     private static final Set<String> ALLOWED_ROLES = Set.of("DOCTOR", "MEDICAL_STAFF", "ADMIN");
     @Transactional
@@ -468,5 +485,154 @@ public class AdminService {
         userRepository.save(user);
 
         return new ResponseEntity<>(new MessageResponse("Tạo tài khoản thành công!"), HttpStatus.CREATED);
+    }
+
+    @Transactional
+    public ResponseEntity<?> adminCreatePatient(
+            String fullName, String username, String email, String phoneNumber,
+            String password, String status, String gender, String dateOfBirthStr, String address) {
+
+        if (userRepository.existsByUsername(username)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Username đã tồn tại!"));
+        }
+        if (userRepository.existsByPhoneNumber(phoneNumber)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Số điện thoại đã được sử dụng!"));
+        }
+        if (email != null && !email.trim().isEmpty() && userRepository.existsByEmail(email)) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email đã được sử dụng!"));
+        }
+
+        String firstName = "";
+        String lastName = "";
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            String[] parts = fullName.trim().split("\\s+");
+            if (parts.length > 0) {
+                firstName = parts[parts.length - 1];
+                if (parts.length > 1) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < parts.length - 1; i++) {
+                        sb.append(parts[i]).append(" ");
+                    }
+                    lastName = sb.toString().trim();
+                } else {
+                    lastName = firstName;
+                }
+            }
+        }
+
+        User user = new User();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPhoneNumber(phoneNumber);
+        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setRole("PATIENT");
+        user.setStatus(status != null ? status : "Active");
+        user.setGender(gender);
+        user.setAddress(address);
+
+        if (dateOfBirthStr != null && !dateOfBirthStr.isEmpty()) {
+            try {
+                user.setDateOfBirth(java.sql.Date.valueOf(dateOfBirthStr));
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+        userRepository.save(user);
+
+        return new ResponseEntity<>(new MessageResponse("Tạo tài khoản bệnh nhân thành công!"), HttpStatus.CREATED);
+    }
+
+    @Transactional
+    public ResponseEntity<?> adminUpdatePatient(Integer id, AdminUpdatePatientRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bệnh nhân với ID: " + id));
+
+        if (!"PATIENT".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("User không phải là bệnh nhân!"));
+        }
+
+        if (request.getPhoneNumber() != null && !request.getPhoneNumber().equalsIgnoreCase(user.getPhoneNumber()) 
+                && userRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Số điện thoại đã được sử dụng!"));
+        }
+        if (request.getEmail() != null && !request.getEmail().trim().isEmpty() 
+                && !request.getEmail().equalsIgnoreCase(user.getEmail()) 
+                && userRepository.existsByEmail(request.getEmail())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email đã được sử dụng!"));
+        }
+
+        String fullName = request.getFullName();
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            String[] parts = fullName.trim().split("\\s+");
+            if (parts.length > 0) {
+                String firstName = parts[parts.length - 1];
+                String lastName = "";
+                if (parts.length > 1) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < parts.length - 1; i++) {
+                        sb.append(parts[i]).append(" ");
+                    }
+                    lastName = sb.toString().trim();
+                } else {
+                    lastName = firstName;
+                }
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+            }
+        }
+
+        if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
+        if (request.getEmail() != null) user.setEmail(request.getEmail());
+        if (request.getGender() != null) user.setGender(request.getGender());
+        if (request.getAddress() != null) user.setAddress(request.getAddress());
+
+        if (request.getStatus() != null) {
+            String status = request.getStatus();
+            if ("HoatDong".equalsIgnoreCase(status) || "Active".equalsIgnoreCase(status)) {
+                user.setStatus("Active");
+            } else if ("Khoa".equalsIgnoreCase(status) || "Inactive".equalsIgnoreCase(status) || "Blocked".equalsIgnoreCase(status)) {
+                user.setStatus("Blocked");
+            } else {
+                user.setStatus(status);
+            }
+        }
+
+        String dobStr = request.getDateOfBirth();
+        if (dobStr != null && !dobStr.isEmpty()) {
+            try {
+                user.setDateOfBirth(java.sql.Date.valueOf(dobStr));
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+
+        userRepository.save(user);
+        return ResponseEntity.ok(new MessageResponse("Cập nhật thông tin bệnh nhân thành công!"));
+    }
+
+    @Transactional
+    public ResponseEntity<?> adminDeletePatient(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy bệnh nhân với ID: " + id));
+        if (!"PATIENT".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.badRequest().body(new MessageResponse("User không phải là bệnh nhân!"));
+        }
+
+        doctorAvailabilityRepository.resetSlotsByPatientId(id);
+        medicalRecordRepository.deleteByPatientId(id);
+        feedbackRepository.deleteByPatientId(id);
+        appointmentRepository.deleteByPatientId(id);
+        userRelationRepository.deleteByUserOrRelativeUser(id);
+        notificationRepository.deleteByUserId(id);
+
+        if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+            otpRepository.deleteByEmail(user.getEmail());
+        }
+
+        userRepository.delete(user);
+        return ResponseEntity.ok(new MessageResponse("Xóa bệnh nhân thành công!"));
     }
 }

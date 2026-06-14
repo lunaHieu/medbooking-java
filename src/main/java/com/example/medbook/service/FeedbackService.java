@@ -1,6 +1,7 @@
 package com.example.medbook.service;
 
 import com.example.medbook.dto.request.FeedbackRequest;
+import com.example.medbook.dto.request.SystemFeedbackRequest;
 import com.example.medbook.dto.response.RatingSummaryResponse;
 import com.example.medbook.dto.response.MessageResponse;
 import com.example.medbook.dto.response.FeedbackResponse; // <-- THÊM IMPORT
@@ -160,4 +161,17 @@ public class FeedbackService {
         return response;
     }
 
+    @Transactional
+    public ResponseEntity<MessageResponse> submitSystemFeedback(SystemFeedbackRequest request) {
+        Feedbacks feedback = new Feedbacks();
+        feedback.setRating(request.getRating());
+        feedback.setComment(request.getComment());
+        feedback.setTargetType("SYSTEM");
+        feedback.setTargetId(0);
+        feedback.setAppointment(null);
+
+        feedbackRepository.save(feedback);
+
+        return ResponseEntity.ok(new MessageResponse("Cảm ơn bạn đã gửi đánh giá hệ thống!"));
+    }
 }

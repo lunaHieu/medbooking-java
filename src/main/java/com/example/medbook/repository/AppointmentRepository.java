@@ -6,6 +6,7 @@ import com.example.medbook.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,10 @@ import java.util.List;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
+
+    @Modifying
+    @Query("DELETE FROM Appointment a WHERE a.patient.userId = :patientId")
+    void deleteByPatientId(@Param("patientId") Integer patientId);
 
     @Override
     @Query("SELECT a FROM Appointment a JOIN FETCH a.patient JOIN FETCH a.doctor d JOIN FETCH d.user JOIN FETCH d.specialty LEFT JOIN FETCH a.service")

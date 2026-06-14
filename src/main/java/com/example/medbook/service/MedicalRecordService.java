@@ -152,4 +152,37 @@ public class MedicalRecordService {
         List<MedicalRecord> records = medicalRecordRepository.findByAppointment_Patient(patient);
         return medicalRecordMapper.toMedicalRecordResponseList(records);
     }
+
+    public List<MedicalRecordResponse> convertToResponseList(List<MedicalRecord> records) {
+        if (records == null) return null;
+        return records.stream().map(this::convertToResponse).collect(java.util.stream.Collectors.toList());
+    }
+
+    public List<MedicalRecordResponse> getAllMedicalRecords(Integer patientId) {
+        List<MedicalRecord> records;
+        if (patientId != null) {
+            User patient = userRepository.findById(patientId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Bệnh nhân không tồn tại."));
+            records = medicalRecordRepository.findByAppointment_Patient(patient);
+        } else {
+            records = medicalRecordRepository.findAll();
+        }
+        return convertToResponseList(records);
+    }
+
+    public MedicalRecordResponse getMedicalRecordById(Integer id) {
+        MedicalRecord record = medicalRecordRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hồ sơ bệnh án ID: " + id));
+        return convertToResponse(record);
+    }
+
+    @Transactional
+    public void deleteMedicalRecord(Integer id) {
+        MedicalRecord record = medicalRecordRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy hồ sơ bệnh án ID: " + id));
+        
+        // cascade delete of associated exam results is configured on the entity as CascadeType.ALL,
+        // so deleting the record will automatically delete its exam results.
+        medicalRecordRepository.delete(record);
+    }
 }

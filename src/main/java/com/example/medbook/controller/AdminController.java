@@ -1,6 +1,7 @@
 package com.example.medbook.controller;
 
 import com.example.medbook.dto.request.CreateUserRequest;
+import com.example.medbook.dto.request.AdminUpdatePatientRequest;
 import com.example.medbook.dto.request.ScheduleRequest;
 import com.example.medbook.dto.request.ServiceRequest;
 import com.example.medbook.dto.request.SpecialtyRequest;
@@ -40,6 +41,9 @@ public class AdminController {
 
     @Autowired
     private AppointmentService appointmentService;
+
+    @Autowired
+    private MedicalRecordService medicalRecordService;
     //QUẢN LÝ NGƯỜI DÙNG VÀ PROFILE (User/Doctor/Staff Creation)
     @PostMapping("/users")
     public ResponseEntity<?> createNewUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
@@ -343,5 +347,52 @@ public class AdminController {
     @DeleteMapping("/doctors/{id}")
     public ResponseEntity<?> deleteDoctor(@PathVariable Integer id) {
         return adminService.deleteDoctor(id);
+    }
+
+    // ==================== QUẢN LÝ BỆNH NHÂN (PATIENT CRUD) ====================
+
+    @PostMapping(value = "/patients", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createPatient(
+            @RequestParam("FullName") String fullName,
+            @RequestParam("Username") String username,
+            @RequestParam("Email") String email,
+            @RequestParam("PhoneNumber") String phoneNumber,
+            @RequestParam("password") String password,
+            @RequestParam(value = "Status", required = false) String status,
+            @RequestParam(value = "Gender", required = false) String gender,
+            @RequestParam(value = "DateOfBirth", required = false) String dateOfBirth,
+            @RequestParam(value = "Address", required = false) String address) {
+        return adminService.adminCreatePatient(fullName, username, email, phoneNumber, password, status, gender, dateOfBirth, address);
+    }
+
+    @PutMapping("/patients/{id}")
+    public ResponseEntity<?> updatePatient(
+            @PathVariable Integer id,
+            @Valid @RequestBody AdminUpdatePatientRequest request) {
+        return adminService.adminUpdatePatient(id, request);
+    }
+
+    @DeleteMapping("/patients/{id}")
+    public ResponseEntity<?> deletePatient(@PathVariable Integer id) {
+        return adminService.adminDeletePatient(id);
+    }
+
+    // ==================== QUẢN LÝ BỆNH ÁN (MEDICAL RECORD CRUD) ====================
+
+    @GetMapping("/medical-records")
+    public ResponseEntity<?> getAllMedicalRecords(
+            @RequestParam(value = "patient_id", required = false) Integer patientId) {
+        return ResponseEntity.ok(medicalRecordService.getAllMedicalRecords(patientId));
+    }
+
+    @GetMapping("/medical-records/{id}")
+    public ResponseEntity<?> getMedicalRecordById(@PathVariable Integer id) {
+        return ResponseEntity.ok(medicalRecordService.getMedicalRecordById(id));
+    }
+
+    @DeleteMapping("/medical-records/{id}")
+    public ResponseEntity<?> deleteMedicalRecord(@PathVariable Integer id) {
+        medicalRecordService.deleteMedicalRecord(id);
+        return ResponseEntity.ok(new MessageResponse("Xóa bệnh án thành công!"));
     }
 }
