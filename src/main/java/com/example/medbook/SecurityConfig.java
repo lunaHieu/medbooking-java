@@ -88,10 +88,10 @@ public class SecurityConfig {
                 .requestMatchers("/services/**", "/api/services/**").permitAll()
                 .requestMatchers("/storage/**", "/api/storage/**").permitAll()
                 .requestMatchers("/error", "/api/error").permitAll() // Cho phép hiển thị lỗi thật
-                .requestMatchers("/admin/**", "/api/admin/**").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/doctor/**", "/api/doctor/**").hasAuthority("ROLE_DOCTOR")
-                .requestMatchers("/staff/**", "/api/staff/**").hasAuthority("ROLE_MEDICAL_STAFF")
-                .requestMatchers("/patient/**", "/api/patient/**").hasAuthority("ROLE_PATIENT")
+                .requestMatchers("/admin/**", "/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "QuanTriVien", "ADMIN", "ROLE_QUANTRIVIEN", "ROLE_ROLE_ADMIN")
+                .requestMatchers("/doctor/**", "/api/doctor/**").hasAnyAuthority("ROLE_DOCTOR", "BacSi", "DOCTOR", "ROLE_BACSI")
+                .requestMatchers("/staff/**", "/api/staff/**").hasAnyAuthority("ROLE_MEDICAL_STAFF", "NhanVien", "STAFF", "ROLE_NHANVIEN", "ROLE_STAFF")
+                .requestMatchers("/patient/**", "/api/patient/**").hasAnyAuthority("ROLE_PATIENT", "BenhNhan", "PATIENT", "ROLE_BENHNHAN", "ROLE_ROLE_PATIENT")
                 .anyRequest().authenticated()
             );
 
