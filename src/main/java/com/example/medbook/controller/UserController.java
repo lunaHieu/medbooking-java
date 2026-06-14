@@ -86,4 +86,17 @@ public class UserController {
             @AuthenticationPrincipal UserDetailsImpl currentUser) {
         return ResponseEntity.ok(userService.searchUserPublic(currentUser, query));
     }
+
+    @Autowired
+    private com.example.medbook.service.FeedbackService feedbackService;
+
+    @PostMapping({"/appointments/{appointmentId}/feedback", "/api/appointments/{appointmentId}/feedback"})
+    public ResponseEntity<?> submitFeedback(
+            @PathVariable Integer appointmentId,
+            @Valid @RequestBody com.example.medbook.dto.request.FeedbackRequest request,
+            @AuthenticationPrincipal UserDetailsImpl currentUser) {
+        request.setAppointmentId(appointmentId);
+        return feedbackService.submitFeedback(request, currentUser);
+    }
 }
+

@@ -9,4 +9,4 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /build/target/*.jar app.jar
 ENV SPRING_PROFILES_ACTIVE=prod
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar", "--server.port=${PORT:8080}"]

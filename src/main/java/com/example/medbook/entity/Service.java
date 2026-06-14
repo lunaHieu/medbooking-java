@@ -38,5 +38,7 @@ public class Service {
         this.description = description;
         this.price = price;
         this.imageURL = imageURL;
+        this.specialty = specialty;
     }
 }
+

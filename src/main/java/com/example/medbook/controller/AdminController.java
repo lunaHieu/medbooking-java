@@ -169,6 +169,12 @@ public class AdminController {
 
     //CRUD DỊCH VỤ (Service Management)
 
+    @GetMapping("/services")
+    public ResponseEntity<List<ServiceResponse>> getAllServices() {
+        List<ServiceResponse> services = serviceService.getAllServices();
+        return ResponseEntity.ok(services);
+    }
+
     // API: POST /api/admin/services (Tạo mới)
     @PostMapping(value = "/services", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ServiceResponse> createServiceMultipart(

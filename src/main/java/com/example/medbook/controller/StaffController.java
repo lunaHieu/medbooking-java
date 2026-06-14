@@ -170,4 +170,37 @@ public class StaffController {
         scheduleService.blockSlotByStaff(slotId);
         return ResponseEntity.ok(new MessageResponse("Đã khóa slot thành công."));
     }
+
+    @Autowired
+    private com.example.medbook.mapper.ScheduleMapper scheduleMapper;
+
+    // API: POST /api/staff/availability (Tạo slot mới cho bác sĩ)
+    // Nhận thông tin qua multipart/form-data
+    @PostMapping(value = "/availability", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> createAvailabilitySlot(
+            @RequestParam("DoctorID") Integer doctorId,
+            @RequestParam("StartTime") String startTime,
+            @RequestParam("EndTime") String endTime) {
+        
+        com.example.medbook.entity.DoctorAvailability slot = scheduleService.createAvailabilitySlot(doctorId, startTime, endTime);
+        return ResponseEntity.status(201).body(scheduleMapper.toScheduleResponse(slot));
+    }
+
+    // API: PUT /api/staff/availability/{slotId} (Cập nhật slot)
+    // Nhận thông tin qua JSON body
+    @PutMapping("/availability/{slotId}")
+    public ResponseEntity<MessageResponse> updateAvailabilitySlot(
+            @PathVariable Integer slotId,
+            @RequestBody com.example.medbook.dto.request.AvailabilityRequest request) {
+        
+        scheduleService.updateAvailabilitySlot(slotId, request);
+        return ResponseEntity.ok(new MessageResponse("Cập nhật slot thành công."));
+    }
+
+    // API: DELETE /api/staff/availability/{slotId} (Xóa slot)
+    @DeleteMapping("/availability/{slotId}")
+    public ResponseEntity<MessageResponse> deleteAvailabilitySlot(@PathVariable Integer slotId) {
+        scheduleService.deleteAvailabilitySlot(slotId);
+        return ResponseEntity.ok(new MessageResponse("Xóa slot thành công."));
+    }
 }

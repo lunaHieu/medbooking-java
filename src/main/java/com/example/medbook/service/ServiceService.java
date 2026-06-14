@@ -53,19 +53,52 @@ public class ServiceService {
 
         for (Service service : services) {
             //Map sang DTO
-            ServiceResponse dto = serviceMapper.toServiceResponse(service);
+            ServiceResponse dto;
+            try {
+                dto = serviceMapper.toServiceResponse(service);
+            } catch (Exception e) {
+                dto = new ServiceResponse();
+                dto.setServiceId(service.getServiceId());
+                dto.setServiceName(service.getServiceName());
+                dto.setDescription(service.getDescription());
+                dto.setEstimatedDuration(service.getEstimatedDuration());
+                dto.setPrice(service.getPrice());
+                dto.setImageURL(service.getImageURL());
+                dto.setSpecialtyName("Chưa rõ");
+            }
 
             //TÌM BÁC SĨ NỔI BẬT (Logic: Lấy bác sĩ đầu tiên của chuyên khoa này)
-            Integer specialtyId = service.getSpecialty().getSpecialtyId();
-            List<Doctor> doctors = doctorRepository.findBySpecialty_SpecialtyId(specialtyId);
+            Integer specialtyId = null;
+            try {
+                if (service.getSpecialty() != null) {
+                    specialtyId = service.getSpecialty().getSpecialtyId();
+                }
+            } catch (Exception e) {
+                // Bỏ qua nếu specialty bị lỗi / không tồn tại trong DB (mismatch)
+            }
 
-            if (!doctors.isEmpty()) {
-                // Lấy bác sĩ đầu tiên làm "Gương mặt đại diện"
-                Doctor featuredDoc = doctors.get(0);
-                String docName = "BS. " + featuredDoc.getUser().getLastName() + " " + featuredDoc.getUser().getFirstName();
+            if (specialtyId != null) {
+                try {
+                    List<Doctor> doctors = doctorRepository.findBySpecialty_SpecialtyId(specialtyId);
 
-                dto.setFeaturedDoctorName(docName);
-                dto.setFeaturedDoctorImage(featuredDoc.getImageURL());
+                    if (doctors != null && !doctors.isEmpty()) {
+                        // Lấy bác sĩ đầu tiên làm "Gương mặt đại diện"
+                        Doctor featuredDoc = doctors.get(0);
+                        if (featuredDoc.getUser() != null) {
+                            String docName = "BS. " + 
+                                    (featuredDoc.getUser().getLastName() != null ? featuredDoc.getUser().getLastName() : "") + " " + 
+                                    (featuredDoc.getUser().getFirstName() != null ? featuredDoc.getUser().getFirstName() : "");
+                            dto.setFeaturedDoctorName(docName.trim());
+                        } else {
+                            dto.setFeaturedDoctorName("Đang cập nhật");
+                        }
+                        dto.setFeaturedDoctorImage(featuredDoc.getImageURL());
+                    } else {
+                        dto.setFeaturedDoctorName("Đang cập nhật");
+                    }
+                } catch (Exception e) {
+                    dto.setFeaturedDoctorName("Đang cập nhật");
+                }
             } else {
                 dto.setFeaturedDoctorName("Đang cập nhật");
             }
@@ -79,16 +112,53 @@ public class ServiceService {
         Service service = serviceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Dịch vụ ID: " + id));
 
-        ServiceResponse dto = serviceMapper.toServiceResponse(service);
+        ServiceResponse dto;
+        try {
+            dto = serviceMapper.toServiceResponse(service);
+        } catch (Exception e) {
+            dto = new ServiceResponse();
+            dto.setServiceId(service.getServiceId());
+            dto.setServiceName(service.getServiceName());
+            dto.setDescription(service.getDescription());
+            dto.setEstimatedDuration(service.getEstimatedDuration());
+            dto.setPrice(service.getPrice());
+            dto.setImageURL(service.getImageURL());
+            dto.setSpecialtyName("Chưa rõ");
+        }
 
         // Tìm bác sĩ nổi bật
-        Integer specialtyId = service.getSpecialty().getSpecialtyId();
-        List<Doctor> doctors = doctorRepository.findBySpecialty_SpecialtyId(specialtyId);
+        Integer specialtyId = null;
+        try {
+            if (service.getSpecialty() != null) {
+                specialtyId = service.getSpecialty().getSpecialtyId();
+            }
+        } catch (Exception e) {
+            // Bỏ qua
+        }
 
-        if (!doctors.isEmpty()) {
-            Doctor featuredDoc = doctors.get(0);
-            dto.setFeaturedDoctorName("BS. " + featuredDoc.getUser().getLastName() + " " + featuredDoc.getUser().getFirstName());
-            dto.setFeaturedDoctorImage(featuredDoc.getImageURL());
+        if (specialtyId != null) {
+            try {
+                List<Doctor> doctors = doctorRepository.findBySpecialty_SpecialtyId(specialtyId);
+
+                if (doctors != null && !doctors.isEmpty()) {
+                    Doctor featuredDoc = doctors.get(0);
+                    if (featuredDoc.getUser() != null) {
+                        String docName = "BS. " + 
+                                (featuredDoc.getUser().getLastName() != null ? featuredDoc.getUser().getLastName() : "") + " " + 
+                                (featuredDoc.getUser().getFirstName() != null ? featuredDoc.getUser().getFirstName() : "");
+                        dto.setFeaturedDoctorName(docName.trim());
+                    } else {
+                        dto.setFeaturedDoctorName("Đang cập nhật");
+                    }
+                    dto.setFeaturedDoctorImage(featuredDoc.getImageURL());
+                } else {
+                    dto.setFeaturedDoctorName("Đang cập nhật");
+                }
+            } catch (Exception e) {
+                dto.setFeaturedDoctorName("Đang cập nhật");
+            }
+        } else {
+            dto.setFeaturedDoctorName("Đang cập nhật");
         }
 
         return dto;

@@ -269,4 +269,82 @@ public class ScheduleService {
         slot.setStatus("Blocked");
         availabilityRepository.save(slot);
     }
+
+    private LocalDateTime parseDateTime(String dateTimeStr) {
+        if (dateTimeStr == null || dateTimeStr.isEmpty()) {
+            return null;
+        }
+        try {
+            return java.time.ZonedDateTime.parse(dateTimeStr).toLocalDateTime();
+        } catch (Exception e1) {
+            try {
+                return java.time.OffsetDateTime.parse(dateTimeStr).toLocalDateTime();
+            } catch (Exception e2) {
+                try {
+                    return java.time.LocalDateTime.parse(dateTimeStr);
+                } catch (Exception e3) {
+                    throw new IllegalArgumentException("Định dạng thời gian không hợp lệ: " + dateTimeStr);
+                }
+            }
+        }
+    }
+
+    @Transactional
+    public DoctorAvailability createAvailabilitySlot(Integer doctorId, String startTimeStr, String endTimeStr) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bác sĩ với ID: " + doctorId));
+
+        LocalDateTime start = parseDateTime(startTimeStr);
+        LocalDateTime end = parseDateTime(endTimeStr);
+
+        if (end.isBefore(start) || end.isEqual(start)) {
+            throw new IllegalArgumentException("Thời gian kết thúc phải sau thời gian bắt đầu");
+        }
+
+        DoctorAvailability slot = new DoctorAvailability();
+        slot.setDoctor(doctor);
+        slot.setStartTime(start);
+        slot.setEndTime(end);
+        slot.setStatus("Available");
+
+        return availabilityRepository.save(slot);
+    }
+
+    @Transactional
+    public void updateAvailabilitySlot(Integer slotId, com.example.medbook.dto.request.AvailabilityRequest request) {
+        DoctorAvailability slot = availabilityRepository.findById(slotId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy slot ID: " + slotId));
+
+        if (request.getDoctorId() != null) {
+            Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bác sĩ với ID: " + request.getDoctorId()));
+            slot.setDoctor(doctor);
+        }
+
+        if (request.getStartTime() != null) {
+            slot.setStartTime(parseDateTime(request.getStartTime()));
+        }
+
+        if (request.getEndTime() != null) {
+            slot.setEndTime(parseDateTime(request.getEndTime()));
+        }
+
+        if (slot.getEndTime().isBefore(slot.getStartTime()) || slot.getEndTime().isEqual(slot.getStartTime())) {
+            throw new IllegalArgumentException("Thời gian kết thúc phải sau thời gian bắt đầu");
+        }
+
+        availabilityRepository.save(slot);
+    }
+
+    @Transactional
+    public void deleteAvailabilitySlot(Integer slotId) {
+        DoctorAvailability slot = availabilityRepository.findById(slotId)
+                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy slot ID: " + slotId));
+
+        if ("Booked".equalsIgnoreCase(slot.getStatus())) {
+            throw new IllegalStateException("Không thể xóa slot này vì đã có lịch hẹn được đặt.");
+        }
+
+        availabilityRepository.delete(slot);
+    }
 }
