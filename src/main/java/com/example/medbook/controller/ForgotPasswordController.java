@@ -70,10 +70,6 @@ public class ForgotPasswordController {
             message.setText("Mã OTP của bạn là: " + otpCode + ". Mã có hiệu lực trong vòng 10 phút.");
             mailSender.send(message);
         } catch (Exception e) {
-            // Log the OTP for testing if SMTP is not configured
-            System.out.println("=================================================");
-            System.out.println("LOGGED OTP FOR " + email + " IS: " + otpCode);
-            System.out.println("=================================================");
             // Still return success in dev/test environment but log it, or return error as requested
             // Since "Không bỏ qua lỗi", let's return error but log the OTP so we know it happened
             return ResponseEntity.status(500).body(new MessageResponse("Lỗi gửi mail: " + e.getMessage()));

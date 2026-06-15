@@ -85,6 +85,7 @@ public class FeedbackService {
         return ResponseEntity.ok(new MessageResponse("Cảm ơn bạn đã gửi đánh giá (" + type + ")!"));
     }
     //ADMIN: LỌC FEEDBACK
+    @Transactional(readOnly = true)
     public List<FeedbackResponse> getFeedbacksForAdmin(String type) {
         List<Feedbacks> list;
 
@@ -99,6 +100,7 @@ public class FeedbackService {
         return list.stream().map(this::mapFeedbackToDetailedResponse).collect(Collectors.toList());
     }
     //LẤY CHI TIẾT TẤT CẢ FEEDBACK CHO MỘT BÁC SĨ
+    @Transactional(readOnly = true)
     public List<FeedbackResponse> getDetailedDoctorFeedback(Integer doctorId) {
 
         // 1. Lấy tất cả feedback cho doctor đó từ Repository
@@ -122,6 +124,7 @@ public class FeedbackService {
         return response;
     }
     //ADMIN XEM TẤT CẢ ĐÁNH GIÁ
+    @Transactional(readOnly = true)
     public List<FeedbackResponse> getAllFeedbacksForAdmin() {
         List<Feedbacks> allFeedbacks = feedbackRepository.findAllByOrderByCreatedAtDesc();
 
@@ -131,6 +134,7 @@ public class FeedbackService {
                 .collect(Collectors.toList());
     }
     //LẤY FEEDBACK CHO TRANG CHỦ
+    @Transactional(readOnly = true)
     public List<FeedbackResponse> getFeaturedFeedbacks() {
         // Lấy các đánh giá từ 4 sao trở lên
         List<Feedbacks> topFeedbacks = feedbackRepository.findTop10ByRatingGreaterThanEqualOrderByCreatedAtDesc(4);

@@ -177,7 +177,6 @@ public class NotificationService {
 
     private void sendEmailQuietly(String to, String subject, String body) {
         if (mailSender == null) {
-            System.out.println("[SMTP MOCK] to=" + to + ", subject=" + subject + ", body=" + body);
             return;
         }
         try {
@@ -187,7 +186,7 @@ public class NotificationService {
             msg.setText(body);
             mailSender.send(msg);
         } catch (Exception e) {
-            System.err.println("Gửi mail thất bại cho " + to + ": " + e.getMessage());
+            // fail silently
         }
     }
 }

@@ -27,8 +27,6 @@ public class AppointmentReminderScheduler {
     // @Scheduled(fixedRate = 60000)
     public void sendDailyReminders() {
 
-        System.out.println("Bắt đầu quét lịch hẹn ngày mai...");
-
         // 1. Xác định thời gian "Ngày mai" (Từ 00:00 đến 23:59)
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         LocalDateTime startOfTomorrow = tomorrow.atStartOfDay();
@@ -41,14 +39,12 @@ public class AppointmentReminderScheduler {
                 endOfTomorrow
         );
 
-        System.out.println("Tìm thấy " + appointments.size() + " lịch hẹn cần nhắc.");
-
         // 3. Gửi thông báo cho từng người
         for (Appointment app : appointments) {
             try {
                 notificationService.sendReminder(app);
             } catch (Exception e) {
-                System.err.println("Lỗi khi gửi thông báo cho Appointment ID: " + app.getAppointmentId());
+                // ignore or handle silently
             }
         }
     }
