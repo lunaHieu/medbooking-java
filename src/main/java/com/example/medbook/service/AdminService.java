@@ -306,7 +306,7 @@ public class AdminService {
                     expectedRole = "MEDICAL_STAFF";
                 } else if (expectedRole.equals("BENHNHAN") || expectedRole.equals("PATIENT")) {
                     expectedRole = "PATIENT";
-                } else if (expectedRole.equals("QUANTRIYEN") || expectedRole.equals("ADMIN")) {
+                } else if (expectedRole.equals("QUANTRIYEN") || expectedRole.equals("QUANTRIVIEN") || expectedRole.equals("ADMIN")) {
                     expectedRole = "ADMIN";
                 }
                 
