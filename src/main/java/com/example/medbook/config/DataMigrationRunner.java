@@ -13,9 +13,9 @@ public class DataMigrationRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        jdbcTemplate.update("UPDATE users SET Role = 'ADMIN' WHERE Role = 'ROLE_ADMIN'");
-        jdbcTemplate.update("UPDATE users SET Role = 'DOCTOR' WHERE Role = 'ROLE_DOCTOR'");
-        jdbcTemplate.update("UPDATE users SET Role = 'MEDICAL_STAFF' WHERE Role = 'ROLE_STAFF'");
-        jdbcTemplate.update("UPDATE users SET Role = 'PATIENT' WHERE Role = 'ROLE_PATIENT'");
+        jdbcTemplate.update("UPDATE users SET Role = 'ADMIN' WHERE Role = 'QuanTriVien'");
+        jdbcTemplate.update("UPDATE users SET Role = 'DOCTOR' WHERE Role = 'BacSi'");
+        jdbcTemplate.update("UPDATE users SET Role = 'MEDICAL_STAFF' WHERE Role = 'NhanVien'");
+        jdbcTemplate.update("UPDATE users SET Role = 'PATIENT' WHERE Role = 'BenhNhan'");
     }
 }
