@@ -274,6 +274,10 @@ public class ScheduleService {
         if (dateTimeStr == null || dateTimeStr.isEmpty()) {
             return null;
         }
+        dateTimeStr = dateTimeStr.trim();
+        if (dateTimeStr.length() >= 19 && dateTimeStr.charAt(10) == ' ') {
+            dateTimeStr = dateTimeStr.substring(0, 10) + "T" + dateTimeStr.substring(11);
+        }
         try {
             return java.time.ZonedDateTime.parse(dateTimeStr).toLocalDateTime();
         } catch (Exception e1) {

@@ -174,15 +174,24 @@ public class StaffController {
     @Autowired
     private com.example.medbook.mapper.ScheduleMapper scheduleMapper;
 
-    // API: POST /api/staff/availability (Tạo slot mới cho bác sĩ)
-    // Nhận thông tin qua multipart/form-data
+    // API: POST /api/staff/availability (Tạo slot mới cho bác sĩ - Multipart Form)
     @PostMapping(value = "/availability", consumes = {"multipart/form-data"})
-    public ResponseEntity<?> createAvailabilitySlot(
+    public ResponseEntity<?> createAvailabilitySlotMultipart(
             @RequestParam("DoctorID") Integer doctorId,
             @RequestParam("StartTime") String startTime,
             @RequestParam("EndTime") String endTime) {
         
         com.example.medbook.entity.DoctorAvailability slot = scheduleService.createAvailabilitySlot(doctorId, startTime, endTime);
+        return ResponseEntity.status(201).body(scheduleMapper.toScheduleResponse(slot));
+    }
+
+    // API: POST /api/staff/availability (Tạo slot mới cho bác sĩ - JSON)
+    @PostMapping(value = "/availability", consumes = {"application/json"})
+    public ResponseEntity<?> createAvailabilitySlotJson(
+            @jakarta.validation.Valid @RequestBody com.example.medbook.dto.request.AvailabilityRequest request) {
+        
+        com.example.medbook.entity.DoctorAvailability slot = scheduleService.createAvailabilitySlot(
+                request.getDoctorId(), request.getStartTime(), request.getEndTime());
         return ResponseEntity.status(201).body(scheduleMapper.toScheduleResponse(slot));
     }
 
