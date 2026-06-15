@@ -115,20 +115,11 @@ public class AdminService {
     @Autowired
     DoctorMapper doctorMapper;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     private String saveFile(MultipartFile file, String subDir) {
-        if (file == null || file.isEmpty()) {
-            return null;
-        }
-        try {
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path uploadPath = Paths.get("src/main/resources/uploads").resolve(subDir).toAbsolutePath().normalize();
-            Files.createDirectories(uploadPath);
-            Path targetLocation = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            return subDir + "/" + fileName;
-        } catch (IOException e) {
-            throw new RuntimeException("Could not store file. Error: " + e.getMessage(), e);
-        }
+        return fileStorageService.uploadFile(file);
     }
 
     @Transactional

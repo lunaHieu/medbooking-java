@@ -31,4 +31,7 @@ public class DoctorAvailability {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "DoctorID", nullable = false)
     private Doctor doctor;
+
+    @OneToOne(mappedBy = "slot", fetch = FetchType.LAZY)
+    private Appointment appointment;
 }

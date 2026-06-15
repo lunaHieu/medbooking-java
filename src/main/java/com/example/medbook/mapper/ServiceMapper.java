@@ -14,9 +14,12 @@ import java.util.List;
 public interface ServiceMapper {
     //Chuyển Entity -> Response DTO
     @Mapping(target = "specialtyName", source = "specialty.specialtyName")
+    @Mapping(target = "specialtyId", source = "specialty.specialtyId")
     ServiceResponse toServiceResponse(Service service);
+    
     //Chuyển List<Entity> -> List<Response DTO>
     List<ServiceResponse> toServiceResponseList(List<Service> services);
+    
     //Request DTO -> Entity
     @Mapping(target = "serviceId", ignore = true)
     @Mapping(target = "specialty",ignore = true)

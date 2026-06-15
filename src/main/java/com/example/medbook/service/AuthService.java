@@ -46,11 +46,17 @@ public class AuthService {
                 .map(item -> item.getAuthority())
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 
-        return ResponseEntity.ok(new LoginResponse(jwt,
+        User user = userRepository.findById(userDetails.getId()).orElse(null);
+        com.example.medbook.dto.response.UserProfileResponse userProfile = user != null ? userMapper.toUserProfileResponse(user) : null;
+
+        LoginResponse loginResponse = new LoginResponse(jwt,
                 "Bearer",
                 userDetails.getId(),
                 userDetails.getUsername(),
-                role));
+                role);
+        loginResponse.setUser(userProfile);
+
+        return ResponseEntity.ok(loginResponse);
     }
 
     public ResponseEntity<?> registerPatient(RegisterRequest registerRequest) {

@@ -44,6 +44,9 @@ public class AdminController {
 
     @Autowired
     private MedicalRecordService medicalRecordService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
     //QUẢN LÝ NGƯỜI DÙNG VÀ PROFILE (User/Doctor/Staff Creation)
     @PostMapping("/users")
     public ResponseEntity<?> createNewUser(@Valid @RequestBody CreateUserRequest createUserRequest) {
@@ -93,19 +96,7 @@ public class AdminController {
     //CRUD CHUYÊN KHOA (Specialty Management)
 
     private String saveFile(MultipartFile file, String subDir) {
-        if (file == null || file.isEmpty()) {
-            return null;
-        }
-        try {
-            String fileName = java.util.UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            java.nio.file.Path uploadPath = java.nio.file.Paths.get("src/main/resources/uploads").resolve(subDir).toAbsolutePath().normalize();
-            java.nio.file.Files.createDirectories(uploadPath);
-            java.nio.file.Path targetLocation = uploadPath.resolve(fileName);
-            java.nio.file.Files.copy(file.getInputStream(), targetLocation, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            return subDir + "/" + fileName;
-        } catch (java.io.IOException e) {
-            throw new RuntimeException("Could not store file. Error: " + e.getMessage(), e);
-        }
+        return fileStorageService.uploadFile(file);
     }
 
     // API: POST /api/admin/specialties (Tạo mới)

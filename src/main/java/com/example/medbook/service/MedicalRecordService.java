@@ -42,13 +42,11 @@ public class MedicalRecordService {
     @Autowired
     private ExamResultsRepository examResultsRepository;
 
-    private final Path fileStorageLocation = Paths.get("src/main/resources/uploads").toAbsolutePath().normalize();
+    @Autowired
+    private FileStorageService fileStorageService;
+
     public MedicalRecordService(){
-        try{
-            Files.createDirectories(this.fileStorageLocation);
-        } catch (Exception e) {
-            throw new RuntimeException("Không thể tạo thư mực lưu trữ file.",e);
-        }
+        // Cloudinary uploads don't need local directory initialization
     }
     @Transactional
     public MedicalRecordResponse createMedicalRecord(MedicalRecordRequest request, UserDetailsImpl currentUser) {
@@ -114,16 +112,10 @@ public class MedicalRecordService {
         if(!record.getAppointment().getDoctor().getUser().getUserId().equals(currentUser.getId())){
             throw new AccessDeniedException("Bạn không có quyền tải file lên hồ sơ này.");
         }
-        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-        Path targetLocation = this.fileStorageLocation.resolve(fileName);
-        try{
-            Files.copy(file.getInputStream(),targetLocation, StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException ex){
-            throw new RuntimeException("Không thể lưu trữ file " + fileName + ". Thử lại sau!", ex);
-        }
+        String secureUrl = fileStorageService.uploadFile(file);
         ExamResults examResults = new ExamResults();
         examResults.setMedicalRecord(record);
-        examResults.setFilePath(targetLocation.toString());//Luu duong dan tuyet doi
+        examResults.setFilePath(secureUrl);
         examResults.setFileType(file.getContentType());
         examResults.setFileDescription(fileDescription);
 

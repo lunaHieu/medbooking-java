@@ -146,16 +146,32 @@ public class FeedbackService {
         // 1. Dùng MapStruct để map các trường cơ bản
         FeedbackResponse response = feedbackMapper.toFeedbackResponse(feedback);
 
-        // 2. Gán tên Bệnh nhân (từ Appointment -> Patient -> User)
+        // 2. Gán tên Bệnh nhân & Reviewer
         if (feedback.getAppointment() != null && feedback.getAppointment().getPatient() != null) {
             User patient = feedback.getAppointment().getPatient();
-            response.setPatientName(patient.getLastName() + " " + patient.getFirstName());
+            String pName = (patient.getLastName() + " " + patient.getFirstName()).trim();
+            response.setPatientName(pName);
+            response.setReviewerName(pName);
+            response.setReviewerAvatar(patient.getAvatarURL());
+        } else {
+            response.setReviewerName("Ẩn danh");
         }
 
-        // 3. Gán tên Bác sĩ
+        // 3. Gán tên Bác sĩ & TargetName
         if (feedback.getAppointment() != null && feedback.getAppointment().getDoctor() != null) {
             User doctorUser = feedback.getAppointment().getDoctor().getUser();
-            response.setDoctorName(doctorUser.getLastName() + " " + doctorUser.getFirstName());
+            String dName = (doctorUser.getLastName() + " " + doctorUser.getFirstName()).trim();
+            response.setDoctorName(dName);
+            if ("DOCTOR".equalsIgnoreCase(feedback.getTargetType())) {
+                response.setTargetName(dName);
+            }
+        }
+
+        if ("SYSTEM".equalsIgnoreCase(feedback.getTargetType())) {
+            response.setTargetName("Hệ thống");
+            response.setType("System");
+        } else {
+            response.setType("Doctor");
         }
 
         return response;

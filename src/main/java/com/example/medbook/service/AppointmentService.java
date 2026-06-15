@@ -375,19 +375,8 @@ public class AppointmentService {
         List<Appointment> list = appointmentRepository.findAll();
         return list.stream().map(this::convertToResponse).collect(Collectors.toList());
     }
-    //HÀM PHỤ (HELPER)
     private AppointmentResponse convertToResponse(Appointment app) {
-        AppointmentResponse response = appointmentMapper.toAppointmentResponse(app);
-
-        if (app.getPatient() != null) {
-            response.setPatientName(app.getPatient().getFirstName() + " " + app.getPatient().getLastName());
-        }
-
-        if (app.getDoctor() != null && app.getDoctor().getUser() != null) {
-            response.setDoctorName(app.getDoctor().getUser().getFirstName() + " " + app.getDoctor().getUser().getLastName());
-        }
-
-        return response;
+        return appointmentMapper.toAppointmentResponse(app);
     }
     //Chuyển đối tượng Doctor Entity sang DoctorProfileResponse DTO an toàn
     private DoctorProfileResponse convertToDoctorProfileResponse(Doctor doctor) {

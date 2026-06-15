@@ -48,6 +48,9 @@ public class UserService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     // 1. Lấy thông tin Profile
     public UserProfileResponse getMyProfile(UserDetailsImpl currentUser) {
         User user = userRepository.findById(currentUser.getId())
@@ -78,20 +81,10 @@ public class UserService {
             throw new IllegalArgumentException("file tải lên không được để trống.");
         }
 
-        try {
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            Path uploadPath = Paths.get("src/main/resources/uploads/avatars").toAbsolutePath().normalize();
-            Files.createDirectories(uploadPath);
-            Path targetLocation = uploadPath.resolve(fileName);
-            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
-            
-            String imagePath = "avatars/" + fileName;
-            user.setAvatarURL(imagePath);
-            User saved = userRepository.save(user);
-            return userMapper.toUserProfileResponse(saved);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not store avatar. Error: " + e.getMessage(), e);
-        }
+        String secureUrl = fileStorageService.uploadFile(file);
+        user.setAvatarURL(secureUrl);
+        User saved = userRepository.save(user);
+        return userMapper.toUserProfileResponse(saved);
     }
 
     @Transactional

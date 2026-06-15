@@ -10,32 +10,32 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Mapper(componentModel = "spring") // Báo cho Spring và MapStruct biết
+@Mapper(componentModel = "spring")
 public interface UserMapper {
 
     // Chuyển từ RegisterRequest sang User
-    @Mapping(target = "userId", ignore = true) // Bỏ qua khi tạo mới
-    @Mapping(target = "role", ignore = true) // Sẽ được set thủ công
-    @Mapping(target = "status", ignore = true) // Sẽ được set thủ công
-    @Mapping(target = "passwordHash", ignore = true) // Sẽ được mã hóa & set thủ công
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "passwordHash", ignore = true)
     User toUser(RegisterRequest dto);
 
     // Chuyển từ CreateUserRequest sang User
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
-    // 'role' có trong DTO này, nên ta không 'ignore' nó
     User toUser(CreateUserRequest dto);
+
     // Entity -> Response (Xem Profile)
+    @Mapping(target = "fullName", expression = "java(user.getLastName() != null && user.getFirstName() != null ? (user.getLastName() + \" \" + user.getFirstName()).trim() : \"\")")
     UserProfileResponse toUserProfileResponse(User user);
 
     //Request -> Entity (Cập nhật Profile)
-    // Chỉ cập nhật các trường không null (người dùng không gửi thì giữ nguyên cái cũ)
     @Mapping(target = "userId", ignore = true)
     @Mapping(target = "username", ignore = true)
     @Mapping(target = "passwordHash", ignore = true)
-    @Mapping(target = "email", ignore = true) // Không cho đổi email ở đây
-    @Mapping(target = "phoneNumber", ignore = true) // Không cho đổi SĐT ở đây
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "phoneNumber", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "firstName", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
