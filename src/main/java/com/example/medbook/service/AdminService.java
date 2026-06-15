@@ -294,27 +294,28 @@ public class AdminService {
     }
 
     public List<UserProfileResponse> getAllUsers(String role, String search) {
-        List<User> users = userRepository.findAll();
-        List<UserProfileResponse> responses = new java.util.ArrayList<>();
-        
-        for (User u : users) {
-            if (role != null && !role.trim().isEmpty()) {
-                String expectedRole = role.toUpperCase();
-                if (expectedRole.equals("BACSI") || expectedRole.equals("DOCTOR")) {
-                    expectedRole = "DOCTOR";
-                } else if (expectedRole.equals("NHANVIEN") || expectedRole.equals("STAFF") || expectedRole.equals("MEDICAL_STAFF")) {
-                    expectedRole = "MEDICAL_STAFF";
-                } else if (expectedRole.equals("BENHNHAN") || expectedRole.equals("PATIENT")) {
-                    expectedRole = "PATIENT";
-                } else if (expectedRole.equals("QUANTRIYEN") || expectedRole.equals("QUANTRIVIEN") || expectedRole.equals("ADMIN")) {
-                    expectedRole = "ADMIN";
-                }
-                
-                if (!expectedRole.equalsIgnoreCase(u.getRole())) {
-                    continue;
-                }
+        List<User> users;
+        if (role != null && !role.trim().isEmpty()) {
+            String upperRole = role.toUpperCase();
+            String expectedRole;
+            if (upperRole.contains("QUANTRIVIEN") || upperRole.contains("QUANTRIYEN") || upperRole.contains("ADMIN")) {
+                expectedRole = "ADMIN";
+            } else if (upperRole.contains("BACSI") || upperRole.contains("DOCTOR")) {
+                expectedRole = "DOCTOR";
+            } else if (upperRole.contains("NHANVIEN") || upperRole.contains("STAFF") || upperRole.contains("MEDICAL_STAFF")) {
+                expectedRole = "MEDICAL_STAFF";
+            } else if (upperRole.contains("BENHNHAN") || upperRole.contains("PATIENT")) {
+                expectedRole = "PATIENT";
+            } else {
+                expectedRole = upperRole;
             }
-            
+            users = userRepository.findByRole(expectedRole);
+        } else {
+            users = userRepository.findAll();
+        }
+        
+        List<UserProfileResponse> responses = new java.util.ArrayList<>();
+        for (User u : users) {
             if (search != null && !search.trim().isEmpty()) {
                 String lower = search.toLowerCase();
                 String fullName = ((u.getLastName() != null ? u.getLastName() : "") + " " + (u.getFirstName() != null ? u.getFirstName() : "")).toLowerCase();
@@ -326,7 +327,6 @@ public class AdminService {
                     continue;
                 }
             }
-            
             responses.add(userMapper.toUserProfileResponse(u));
         }
         
