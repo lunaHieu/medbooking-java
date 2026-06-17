@@ -84,7 +84,7 @@ public class SecurityConfig {
                 .requestMatchers("/storage/**", "/api/storage/**").permitAll()
                 .requestMatchers("/system-feedback", "/api/system-feedback").permitAll()
                 .requestMatchers("/error", "/api/error").permitAll() // Cho phép hiển thị lỗi thật
-                .requestMatchers("/admin/**", "/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "QuanTriVien", "ADMIN", "ROLE_QUANTRIVIEN", "ROLE_ROLE_ADMIN")
+                .requestMatchers("/admin/**", "/api/admin/**").hasAnyAuthority("ROLE_ADMIN", "QuanTriVien", "ADMIN", "ROLE_QUANTRIVIEN", "ROLE_ROLE_ADMIN", "NhanVien", "STAFF", "ROLE_NHANVIEN", "ROLE_STAFF")
                 .requestMatchers("/doctor/**", "/api/doctor/**").hasAnyAuthority("ROLE_DOCTOR", "BacSi", "DOCTOR", "ROLE_BACSI")
                 .requestMatchers("/staff/**", "/api/staff/**").hasAnyAuthority("ROLE_MEDICAL_STAFF", "NhanVien", "STAFF", "ROLE_NHANVIEN", "ROLE_STAFF", "ROLE_ADMIN", "QuanTriVien", "ADMIN", "ROLE_QUANTRIVIEN")
                 .requestMatchers("/patient/**", "/api/patient/**").hasAnyAuthority("ROLE_PATIENT", "BenhNhan", "PATIENT", "ROLE_BENHNHAN", "ROLE_ROLE_PATIENT")

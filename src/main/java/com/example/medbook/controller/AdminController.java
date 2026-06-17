@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -281,6 +282,7 @@ public class AdminController {
     }
 
     // XEM TẤT CẢ LỊCH HẸN (Cho Admin)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'QuanTriVien', 'ADMIN', 'ROLE_QUANTRIVIEN', 'NhanVien', 'STAFF', 'ROLE_NHANVIEN', 'ROLE_STAFF')")
     @GetMapping("/all-appointments")
     public ResponseEntity<Map<String, Object>> getAllAppointments() {
         List<AppointmentResponse> appointments = appointmentService.getAllAppointments();
@@ -385,5 +387,13 @@ public class AdminController {
     public ResponseEntity<?> deleteMedicalRecord(@PathVariable Integer id) {
         medicalRecordService.deleteMedicalRecord(id);
         return ResponseEntity.ok(new MessageResponse("Xóa bệnh án thành công!"));
+    }
+
+    // LẤY DANH SÁCH BỆNH NHÂN (Cho Admin & Staff)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'QuanTriVien', 'ADMIN', 'ROLE_QUANTRIVIEN', 'NhanVien', 'STAFF', 'ROLE_NHANVIEN', 'ROLE_STAFF')")
+    @GetMapping("/patients")
+    public ResponseEntity<List<UserProfileResponse>> getAllPatients(
+            @RequestParam(value = "search", required = false) String search) {
+        return ResponseEntity.ok(adminService.getAllUsers("PATIENT", search));
     }
 }
