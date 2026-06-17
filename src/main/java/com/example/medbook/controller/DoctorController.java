@@ -39,10 +39,22 @@ public class DoctorController {
         return ResponseEntity.ok(new MessageResponse("Xin chào bác sĩ!"));
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<?> getProfileLegacy(@AuthenticationPrincipal UserDetailsImpl currentUser) {
+        // Redirect request /api/doctor/profile -> dùng logic của /api/doctor/me
+        return getDoctorProfile(); 
+    }
+
     // API Thống kê
     @GetMapping("/dashboard/stats")
     public ResponseEntity<Map<String, Long>> getStats(@AuthenticationPrincipal UserDetailsImpl currentUser) {
         return ResponseEntity.ok(appointmentService.getDoctorDailyStats(currentUser.getId()));
+    }
+
+    @GetMapping("/dashboard-stats")
+    public ResponseEntity<?> getStatsLegacy(@AuthenticationPrincipal UserDetailsImpl currentUser) {
+        // Redirect request /api/doctor/dashboard-stats -> dùng logic của /api/doctor/dashboard/stats
+        return getStats(currentUser); 
     }
 
     // 2. QUẢN LÝ LỊCH LÀM VIỆC (SCHEDULE)
