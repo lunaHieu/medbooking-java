@@ -24,7 +24,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/patient")
-@PreAuthorize("hasAnyAuthority('BenhNhan', 'PATIENT')")
+@PreAuthorize("hasAnyAuthority('ROLE_BENHNHAN', 'ROLE_PATIENT', 'BenhNhan', 'PATIENT')")
 public class PatientController {
     @Autowired
     private AppointmentService appointmentService;
