@@ -23,7 +23,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerPatient(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> registerPatient(@Valid @ModelAttribute RegisterRequest registerRequest) {
         return authService.registerPatient(registerRequest);
     }
     @PostMapping("/logout")

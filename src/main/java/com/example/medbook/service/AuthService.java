@@ -71,15 +71,45 @@ public class AuthService {
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Số điện thoại đã được sử dụng!"));
         }
 
+        // Tách FullName thành FirstName và LastName nếu chúng bị trống
+        String fullName = registerRequest.getFullName();
+        if (fullName != null && !fullName.trim().isEmpty()) {
+            if (registerRequest.getFirstName() == null || registerRequest.getFirstName().trim().isEmpty() ||
+                registerRequest.getLastName() == null || registerRequest.getLastName().trim().isEmpty()) {
+                
+                String[] parts = fullName.trim().split("\\s+");
+                if (parts.length > 0) {
+                    // Chữ cuối cùng là FirstName
+                    String firstName = parts[parts.length - 1];
+                    // Các chữ còn lại là LastName
+                    StringBuilder lastNameBuilder = new StringBuilder();
+                    for (int i = 0; i < parts.length - 1; i++) {
+                        lastNameBuilder.append(parts[i]).append(" ");
+                    }
+                    String lastName = lastNameBuilder.toString().trim();
+                    
+                    registerRequest.setFirstName(firstName);
+                    registerRequest.setLastName(lastName.isEmpty() ? "" : lastName);
+                } else {
+                    registerRequest.setFirstName(fullName);
+                    registerRequest.setLastName("");
+                }
+            }
+        }
+
         // 1. Dùng Mapper để chuyển đổi
         User user = userMapper.toUser(registerRequest);
 
         // 2. Set các trường logic nghiệp vụ
         user.setPasswordHash(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setRole("PATIENT");
+        user.setRole("BenhNhan");
         user.setStatus("Active");
 
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: Email hoặc Số điện thoại đã được sử dụng!"));
+        }
         return ResponseEntity.ok(new MessageResponse("Đăng ký tài khoản bệnh nhân thành công!"));
     }
     public void logout() {

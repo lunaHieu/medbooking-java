@@ -12,10 +12,9 @@ public class RegisterRequest {
     @Size(min = 8, max = 50)
     private String password;
 
-    @NotBlank
     private String firstName;
-    @NotBlank
     private String lastName;
+    private String fullName;
 
     @NotBlank
     @Email
@@ -80,5 +79,13 @@ public class RegisterRequest {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 }
