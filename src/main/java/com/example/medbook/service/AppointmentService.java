@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,9 +49,11 @@ public class AppointmentService {
     private AppointmentMapper appointmentMapper;
     @Autowired
     private ServiceRepository serviceRepository;
+    @Autowired
+    private FileStorageService fileStorageService;
     //ĐẶT LỊCH (Book)
     @Transactional
-    public AppointmentResponse bookAppointment(BookAppointmentRequest request, UserDetailsImpl currentUser) {
+    public AppointmentResponse bookAppointment(BookAppointmentRequest request, MultipartFile file, UserDetailsImpl currentUser) {
         Integer patientId = currentUser.getId();
         User patient = userRepository.findById(patientId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Bệnh nhân với UserID: " + patientId));
@@ -96,8 +99,17 @@ public class AppointmentService {
         }
 
         appointment.setInitialSymptoms(request.getInitialSymptoms());
-        Appointment savedAppointment = appointmentRepository.save(appointment);
 
+        if (file != null && !file.isEmpty()) {
+            try {
+                String fileUrl = fileStorageService.uploadFile(file);
+                System.out.println("Uploaded appointment attachment to Cloudinary: " + fileUrl);
+            } catch (Exception e) {
+                System.err.println("Lỗi upload file khi đặt lịch: " + e.getMessage());
+            }
+        }
+
+        Appointment savedAppointment = appointmentRepository.save(appointment);
         return convertToResponse(savedAppointment);
     }
 

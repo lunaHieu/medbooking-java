@@ -16,6 +16,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -47,11 +50,20 @@ public class PatientController {
         return ResponseEntity.ok(response);
     }
     //Bệnh nhân đặt lịch hẹn
-    @PostMapping("/appointments")
+    @PostMapping(value = "/appointments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AppointmentResponse> bookAppointment(
-            @Valid @RequestBody BookAppointmentRequest request,
+            @RequestParam("SlotID") Integer slotId,
+            @RequestParam(value = "InitialSymptoms", required = false) String initialSymptoms,
+            @RequestParam(value = "ServiceID", required = false) Integer serviceId,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @AuthenticationPrincipal UserDetailsImpl currentUser) {
-        AppointmentResponse newAppointment = appointmentService.bookAppointment(request, currentUser);
+        
+        BookAppointmentRequest request = new BookAppointmentRequest();
+        request.setSlotId(slotId);
+        request.setInitialSymptoms(initialSymptoms);
+        request.setServiceId(serviceId);
+
+        AppointmentResponse newAppointment = appointmentService.bookAppointment(request, file, currentUser);
         return new ResponseEntity<>(newAppointment, HttpStatus.CREATED);
 
     }
