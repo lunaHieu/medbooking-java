@@ -120,8 +120,14 @@ public class MedicalRecordService {
         examResults.setFileDescription(fileDescription);
 
         ExamResults savedResult = examResultsRepository.save(examResults);
-        return MedicalRecordMapper.INSTANCE.toExamResultResponse(savedResult);
+        return medicalRecordMapper.toExamResultResponse(savedResult);
     }
+
+    public List<MedicalRecordResponse> getDoctorMedicalRecords(Integer doctorId) {
+        List<MedicalRecord> records = medicalRecordRepository.findByDoctor_DoctorId(doctorId);
+        return convertToResponseList(records);
+    }
+
     //Lấy lịch sử khám cho Bác sĩ
     public List<MedicalRecordResponse> getRecordsByPatientId(Integer patientId, UserDetailsImpl currentUser) {
         // Kiểm tra bệnh nhân tồn tại

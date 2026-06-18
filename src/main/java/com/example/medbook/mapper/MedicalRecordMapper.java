@@ -6,14 +6,11 @@ import com.example.medbook.entity.ExamResults;
 import com.example.medbook.entity.MedicalRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class, DoctorMapper.class, AppointmentMapper.class})
 public interface MedicalRecordMapper {
-
-    MedicalRecordMapper INSTANCE = Mappers.getMapper(MedicalRecordMapper.class);
 
     @Mapping(target = "recordId", source = "medicalRecord.recordId")
     ExamResultResponse toExamResultResponse(ExamResults examResults);

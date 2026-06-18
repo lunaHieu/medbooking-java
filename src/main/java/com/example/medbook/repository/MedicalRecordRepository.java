@@ -24,7 +24,9 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, In
     @Query("SELECT m FROM MedicalRecord m WHERE m.appointment.patient = :patient")
     List<MedicalRecord> findByAppointment_Patient(@Param("patient") User patient);
 
-    //Tìm bệnh án của một bệnh nhân (PatientID) nhưng chỉ do Bác sĩ cụ thể khám
     @Query("SELECT m FROM MedicalRecord m WHERE m.patient.userId = :patientId AND m.doctor.doctorId = :doctorId")
     List<MedicalRecord> findByPatient_UserIdAndDoctor_DoctorId(@Param("patientId") Integer patientId, @Param("doctorId") Integer doctorId);
+
+    @Query("SELECT m FROM MedicalRecord m WHERE m.doctor.doctorId = :doctorId")
+    List<MedicalRecord> findByDoctor_DoctorId(@Param("doctorId") Integer doctorId);
 }

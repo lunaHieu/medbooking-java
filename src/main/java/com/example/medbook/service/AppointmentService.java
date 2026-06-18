@@ -125,8 +125,11 @@ public class AppointmentService {
 
     //XEM LỊCH HÔM NAY (Cho Bác sĩ)
     public List<AppointmentResponse> getDoctorAppointmentsForToday(UserDetailsImpl currentUser) {
-        Doctor doctor = doctorRepository.findById(currentUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Hồ sơ Bác sĩ không tồn tại"));
+        java.util.Optional<Doctor> doctorOpt = doctorRepository.findById(currentUser.getId());
+        if (doctorOpt.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        Doctor doctor = doctorOpt.get();
 
         LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
         LocalDateTime endOfDay = LocalDate.now().atTime(LocalTime.MAX);
@@ -147,8 +150,11 @@ public class AppointmentService {
     }
     //Cho Bác sĩ xem lịch theo khoảng ngày
     public List<AppointmentResponse> getDoctorSchedule(UserDetailsImpl currentUser, LocalDate fromDate, LocalDate toDate) {
-        Doctor doctor = doctorRepository.findById(currentUser.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Hồ sơ Bác sĩ không tồn tại"));
+        java.util.Optional<Doctor> doctorOpt = doctorRepository.findById(currentUser.getId());
+        if (doctorOpt.isEmpty()) {
+            return new java.util.ArrayList<>();
+        }
+        Doctor doctor = doctorOpt.get();
 
         LocalDateTime start = fromDate.atStartOfDay();
         LocalDateTime end = toDate.atTime(LocalTime.MAX);

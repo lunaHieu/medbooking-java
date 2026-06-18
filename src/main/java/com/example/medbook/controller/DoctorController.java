@@ -7,6 +7,7 @@ import com.example.medbook.security.services.UserDetailsImpl;
 import com.example.medbook.service.AppointmentService;
 import com.example.medbook.service.MedicalRecordService;
 import com.example.medbook.service.ScheduleService;
+import com.example.medbook.service.DoctorService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,17 +33,22 @@ public class DoctorController {
     private AppointmentService appointmentService;
     @Autowired
     private MedicalRecordService medicalRecordService;
+    @Autowired
+    private DoctorService doctorService;
 
     // DASHBOARD & PROFILE
     @GetMapping("/me")
-    public ResponseEntity<MessageResponse> getDoctorProfile(){
-        return ResponseEntity.ok(new MessageResponse("Xin chào bác sĩ!"));
+    public ResponseEntity<?> getDoctorProfile(@AuthenticationPrincipal UserDetailsImpl currentUser){
+        return ResponseEntity.ok(Map.of(
+            "success", true,
+            "data", doctorService.getDoctorById(currentUser.getId())
+        ));
     }
 
     @GetMapping("/profile")
     public ResponseEntity<?> getProfileLegacy(@AuthenticationPrincipal UserDetailsImpl currentUser) {
         // Redirect request /api/doctor/profile -> dùng logic của /api/doctor/me
-        return getDoctorProfile(); 
+        return getDoctorProfile(currentUser); 
     }
 
     // API Thống kê
@@ -126,7 +132,6 @@ public class DoctorController {
 
     //QUẢN LÝ BỆNH ÁN (MEDICAL RECORD)
 
-    // Tạo bệnh án
     @PostMapping("/medical-records")
     public ResponseEntity<MedicalRecordResponse> createMedicalRecord(
             @Valid @RequestBody MedicalRecordRequest request,
@@ -134,6 +139,13 @@ public class DoctorController {
     ){
         MedicalRecordResponse record = medicalRecordService.createMedicalRecord(request,currentUser);
         return new ResponseEntity<>(record, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/medical-records")
+    public ResponseEntity<List<MedicalRecordResponse>> getMyMedicalRecords(
+            @AuthenticationPrincipal UserDetailsImpl currentUser) {
+        List<MedicalRecordResponse> records = medicalRecordService.getDoctorMedicalRecords(currentUser.getId());
+        return ResponseEntity.ok(records);
     }
 
     // Upload kết quả xét nghiệm
