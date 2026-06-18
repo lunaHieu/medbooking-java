@@ -243,8 +243,11 @@ public class AppointmentService {
         if (!appointment.getDoctor().getUser().getUsername().equals(doctorUsername)) {
             throw new AccessDeniedException("Bạn không có quyền hoàn tất lịch hẹn của Bác sĩ khác");
         }
-        if (!STATUS_CONFIRMED.equalsIgnoreCase(appointment.getStatus())) { // Dùng Hằng số
-            throw new IllegalStateException("Lịch hẹn chỉ có thể được hoàn tất khi ở trạng thái 'Confirmed'.");
+        String status = appointment.getStatus();
+        if (!STATUS_CONFIRMED.equalsIgnoreCase(status)
+                && !STATUS_CHECKED_IN.equalsIgnoreCase(status)
+                && !STATUS_IN_PROGRESS.equalsIgnoreCase(status)) {
+            throw new IllegalStateException("Lịch hẹn chỉ có thể được hoàn tất khi ở trạng thái 'Confirmed', 'CheckedIn' hoặc 'InProgress'.");
         }
         appointment.setStatus(STATUS_COMPLETED); // Dùng Hằng số
         appointmentRepository.save(appointment);
