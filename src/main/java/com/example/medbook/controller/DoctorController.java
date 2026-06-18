@@ -142,10 +142,9 @@ public class DoctorController {
     }
 
     @GetMapping("/medical-records")
-    public ResponseEntity<List<MedicalRecordResponse>> getMyMedicalRecords(
+    public ResponseEntity<?> getMedicalRecords(
             @AuthenticationPrincipal UserDetailsImpl currentUser) {
-        List<MedicalRecordResponse> records = medicalRecordService.getDoctorMedicalRecords(currentUser.getId());
-        return ResponseEntity.ok(records);
+        return ResponseEntity.ok(medicalRecordService.getRecordsByDoctor(currentUser.getId()));
     }
 
     // Upload kết quả xét nghiệm

@@ -328,11 +328,11 @@ public class AppointmentService {
 
         Map<String, Long> stats = new HashMap<>();
         stats.put("total_today", (long) todayApps.size());
-        stats.put("checked_in", todayApps.stream().filter(a -> "CheckedIn".equalsIgnoreCase(a.getStatus())).count());
-        stats.put("in_progress", todayApps.stream().filter(a -> "InProgress".equalsIgnoreCase(a.getStatus())).count());
+        stats.put("checked_in", todayApps.stream().filter(a -> a.getStatus() != null && "CheckedIn".equalsIgnoreCase(a.getStatus())).count());
+        stats.put("in_progress", todayApps.stream().filter(a -> a.getStatus() != null && "InProgress".equalsIgnoreCase(a.getStatus())).count());
 
         // Đếm số bác sĩ có lịch hôm nay
-        long activeDoctors = todayApps.stream().map(a -> a.getDoctor().getDoctorId()).distinct().count();
+        long activeDoctors = todayApps.stream().filter(a -> a.getDoctor() != null).map(a -> a.getDoctor().getDoctorId()).distinct().count();
         stats.put("doctors_working", activeDoctors);
 
         return stats;

@@ -123,7 +123,7 @@ public class MedicalRecordService {
         return medicalRecordMapper.toExamResultResponse(savedResult);
     }
 
-    public List<MedicalRecordResponse> getDoctorMedicalRecords(Integer doctorId) {
+    public List<MedicalRecordResponse> getRecordsByDoctor(Integer doctorId) {
         List<MedicalRecord> records = medicalRecordRepository.findByDoctor_DoctorId(doctorId);
         return convertToResponseList(records);
     }
