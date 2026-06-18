@@ -120,7 +120,10 @@ public class AppointmentService {
 
         List<Appointment> list = appointmentRepository.findByPatient(patient);
 
-        return list.stream().map(this::convertToResponse).collect(Collectors.toList());
+        return list.stream()
+                .filter(app -> app.getPatient() != null && app.getDoctor() != null)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     //XEM LỊCH HÔM NAY (Cho Bác sĩ)
@@ -136,7 +139,10 @@ public class AppointmentService {
 
         List<Appointment> list = appointmentRepository.findByDoctorAndStartTimeBetween(doctor, startOfDay, endOfDay);
 
-        return list.stream().map(this::convertToResponse).collect(Collectors.toList());
+        return list.stream()
+                .filter(app -> app.getPatient() != null && app.getDoctor() != null)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     //XEM TOÀN BỘ LỊCH HÔM NAY (Cho Nhân viên y tế)
@@ -146,7 +152,10 @@ public class AppointmentService {
 
         List<Appointment> list = appointmentRepository.findByStartTimeBetween(startOfDay, endOfDay);
 
-        return list.stream().map(this::convertToResponse).collect(Collectors.toList());
+        return list.stream()
+                .filter(app -> app.getPatient() != null && app.getDoctor() != null)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
     //Cho Bác sĩ xem lịch theo khoảng ngày
     public List<AppointmentResponse> getDoctorSchedule(UserDetailsImpl currentUser, LocalDate fromDate, LocalDate toDate) {
@@ -161,7 +170,10 @@ public class AppointmentService {
 
         List<Appointment> list = appointmentRepository.findByDoctorAndStartTimeBetween(doctor, start, end);
 
-        return list.stream().map(this::convertToResponse).collect(Collectors.toList());
+        return list.stream()
+                .filter(app -> app.getPatient() != null && app.getDoctor() != null)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
     //Xác nhận lịch hẹn (Staff)
     @Transactional
@@ -178,7 +190,10 @@ public class AppointmentService {
 
     public List<AppointmentResponse> getPendingAppointments() {
         List<Appointment> list = appointmentRepository.findByStatus(STATUS_PENDING);
-        return list.stream().map(this::convertToResponse).collect(Collectors.toList());
+        return list.stream()
+                .filter(app -> app.getPatient() != null && app.getDoctor() != null)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -394,7 +409,10 @@ public class AppointmentService {
     // Lấy toàn bộ lịch hẹn (Cho Admin)
     public List<AppointmentResponse> getAllAppointments() {
         List<Appointment> list = appointmentRepository.findAll();
-        return list.stream().map(this::convertToResponse).collect(Collectors.toList());
+        return list.stream()
+                .filter(app -> app.getPatient() != null && app.getDoctor() != null)
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
     }
     private AppointmentResponse convertToResponse(Appointment app) {
         return appointmentMapper.toAppointmentResponse(app);

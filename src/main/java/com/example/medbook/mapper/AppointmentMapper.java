@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {UserMapper.class, DoctorMapper.class, ServiceMapper.class})
 public interface AppointmentMapper {
-    @Mapping(target = "patientName", expression = "java(appointment.getPatient() != null ? (appointment.getPatient().getLastName() + \" \" + appointment.getPatient().getFirstName()).trim() : \"\")")
-    @Mapping(target = "doctorName", expression = "java(appointment.getDoctor() != null && appointment.getDoctor().getUser() != null ? (appointment.getDoctor().getUser().getLastName() + \" \" + appointment.getDoctor().getUser().getFirstName()).trim() : \"\")")
+    @Mapping(target = "patientName", expression = "java(appointment.getPatient() != null ? ((appointment.getPatient().getLastName() != null ? appointment.getPatient().getLastName() : \"\") + \" \" + (appointment.getPatient().getFirstName() != null ? appointment.getPatient().getFirstName() : \"\")).trim() : \"\")")
+    @Mapping(target = "doctorName", expression = "java(appointment.getDoctor() != null && appointment.getDoctor().getUser() != null ? ((appointment.getDoctor().getUser().getLastName() != null ? appointment.getDoctor().getUser().getLastName() : \"\") + \" \" + (appointment.getDoctor().getUser().getFirstName() != null ? appointment.getDoctor().getUser().getFirstName() : \"\")).trim() : \"\")")
     @Mapping(target = "specialtyName", source = "doctor.specialty.specialtyName")
     @Mapping(target = "serviceName", source = "service.serviceName")
     @Mapping(target = "patientId", source = "patient.userId")
