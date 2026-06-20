@@ -10,7 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRelationRepository extends JpaRepository<UserRelation, Long> {
+public interface UserRelationRepository extends JpaRepository<UserRelation,Long> {
+
+    void deleteAllByUser_UserIdOrRelativeUser_UserId(Integer userId, Integer relativeUserId);
     List<UserRelation> findByUser_UserId(Integer userId);
     Optional<UserRelation> findByUser_UserIdAndRelativeUser_UserId(Integer userId, Integer relativeUserId);
 

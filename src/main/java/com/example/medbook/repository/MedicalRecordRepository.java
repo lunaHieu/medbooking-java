@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Integer> {
+public interface MedicalRecordRepository extends JpaRepository<MedicalRecord,Integer> {
+
+    void deleteAllByDoctor_DoctorId(Integer doctorId);
 
     @Modifying
     @Query("DELETE FROM MedicalRecord mr WHERE mr.patient.userId = :patientId")

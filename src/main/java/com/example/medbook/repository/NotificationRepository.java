@@ -10,7 +10,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 @Repository
-public interface NotificationRepository extends JpaRepository<Notification, Integer> {
+public interface NotificationRepository extends JpaRepository<Notification,Integer> {
+
+    void deleteAllByUser_UserId(Integer userId);
     @Modifying
     @Query("DELETE FROM Notification n WHERE n.user.userId = :userId")
     void deleteByUserId(@Param("userId") Integer userId);

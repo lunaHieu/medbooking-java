@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface DoctorAvailabilityRepository extends JpaRepository<DoctorAvailability, Integer> {
+public interface DoctorAvailabilityRepository extends JpaRepository<DoctorAvailability,Integer> {
+
+    void deleteAllByDoctor_DoctorId(Integer doctorId);
     @Modifying
     @Query("UPDATE DoctorAvailability da SET da.status = 'Available' WHERE da.slotId IN (SELECT a.slot.slotId FROM Appointment a WHERE a.patient.userId = :patientId AND a.slot IS NOT NULL)")
     void resetSlotsByPatientId(@Param("patientId") Integer patientId);

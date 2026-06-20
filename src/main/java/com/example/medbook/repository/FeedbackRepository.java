@@ -11,7 +11,9 @@ import java.util.Optional;
 import java.util.List;
 
 @Repository
-public interface FeedbackRepository extends JpaRepository<Feedbacks, Integer> {
+public interface FeedbackRepository extends JpaRepository<Feedbacks,Integer> {
+
+    void deleteAllByAppointment_Doctor_DoctorId(Integer doctorId);
 
     @Modifying
     @Query("DELETE FROM Feedbacks f WHERE f.appointment.patient.userId = :patientId")

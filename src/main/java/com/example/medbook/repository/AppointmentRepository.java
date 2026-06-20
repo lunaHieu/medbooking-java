@@ -13,7 +13,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
+public interface AppointmentRepository extends JpaRepository<Appointment,Integer> {
+
+    void deleteAllByDoctor_DoctorId(Integer doctorId);
 
     @Modifying
     @Query("DELETE FROM Appointment a WHERE a.patient.userId = :patientId")
