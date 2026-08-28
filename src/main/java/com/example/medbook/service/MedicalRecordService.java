@@ -54,12 +54,13 @@ public class MedicalRecordService {
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Lịch hẹn ID: " + request.getAppointmentId()));
 
-        if (appointment.getDoctor().getUser().getUserId() != currentUser.getId()) {
+        if (!appointment.getDoctor().getUser().getUserId().equals(currentUser.getId())) {
             throw new AccessDeniedException("Bạn không phải Bác sĩ chủ trì cuộc hẹn này.");
         }
 
-        if (!"Completed".equalsIgnoreCase(appointment.getStatus())) {
-            throw new IllegalStateException("Chỉ có thể tạo bệnh án cho lịch hẹn đã hoàn tất (Completed).");
+        if (!"InProgress".equalsIgnoreCase(appointment.getStatus())
+                && !"Completed".equalsIgnoreCase(appointment.getStatus())) {
+            throw new IllegalStateException("Chỉ có thể tạo bệnh án trong hoặc sau khi hoàn tất ca khám.");
         }
 
         if (medicalRecordRepository.findByAppointment_AppointmentId(appointment.getAppointmentId()).isPresent()) {
