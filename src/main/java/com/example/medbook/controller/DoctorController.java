@@ -2,6 +2,8 @@ package com.example.medbook.controller;
 
 import com.example.medbook.dto.request.MedicalRecordRequest;
 import com.example.medbook.dto.request.ScheduleRequest;
+import com.example.medbook.dto.request.DoctorProfileUpdateRequest;
+import com.example.medbook.dto.request.DoctorSettingsRequest;
 import com.example.medbook.dto.response.*;
 import com.example.medbook.security.services.UserDetailsImpl;
 import com.example.medbook.service.AppointmentService;
@@ -49,6 +51,26 @@ public class DoctorController {
     public ResponseEntity<?> getProfileLegacy(@AuthenticationPrincipal UserDetailsImpl currentUser) {
         // Redirect request /api/doctor/profile -> dùng logic của /api/doctor/me
         return getDoctorProfile(currentUser); 
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<DoctorProfileResponse> updateDoctorProfile(
+            @Valid @RequestBody DoctorProfileUpdateRequest request,
+            @AuthenticationPrincipal UserDetailsImpl currentUser) {
+        return ResponseEntity.ok(doctorService.updateMyProfile(currentUser.getId(), request));
+    }
+
+    @GetMapping("/settings")
+    public ResponseEntity<DoctorSettingsResponse> getDoctorSettings(
+            @AuthenticationPrincipal UserDetailsImpl currentUser) {
+        return ResponseEntity.ok(doctorService.getMySettings(currentUser.getId()));
+    }
+
+    @PutMapping("/settings")
+    public ResponseEntity<DoctorSettingsResponse> updateDoctorSettings(
+            @Valid @RequestBody DoctorSettingsRequest request,
+            @AuthenticationPrincipal UserDetailsImpl currentUser) {
+        return ResponseEntity.ok(doctorService.updateMySettings(currentUser.getId(), request));
     }
 
     // API Thống kê
