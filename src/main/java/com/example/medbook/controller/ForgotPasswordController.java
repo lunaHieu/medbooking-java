@@ -2,6 +2,8 @@ package com.example.medbook.controller;
 
 import com.example.medbook.entity.Otp;
 import com.example.medbook.entity.User;
+import com.example.medbook.dto.request.ForgotPasswordRequest;
+import com.example.medbook.dto.request.ResetPasswordRequest;
 import com.example.medbook.dto.response.MessageResponse;
 import com.example.medbook.repository.OtpRepository;
 import com.example.medbook.repository.UserRepository;
@@ -14,13 +16,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
+import java.security.SecureRandom;
 
 @RestController
 @RequestMapping({"/forgot-password", "/api/forgot-password"})
 public class ForgotPasswordController {
+
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final int RESEND_COOLDOWN_SECONDS = 60;
+    private static final String OTP_SENT_MESSAGE = "Nếu email tồn tại, mã xác thực đã được gửi.";
 
     @Autowired
     private UserRepository userRepository;
@@ -36,31 +42,29 @@ public class ForgotPasswordController {
 
     @PostMapping("/send-otp")
     @Transactional
-    public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        if (email == null || email.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Email không được để trống."));
+    public ResponseEntity<MessageResponse> sendOtp(@jakarta.validation.Valid @RequestBody ForgotPasswordRequest request) {
+        String email = request.getEmail().trim();
+        Optional<Otp> existingOtp = otpRepository.findFirstByEmailIgnoreCaseOrderByExpiresAtDesc(email);
+
+        if (existingOtp.isPresent()
+                && existingOtp.get().getLastSentAt().plusSeconds(RESEND_COOLDOWN_SECONDS).isAfter(LocalDateTime.now())) {
+            return ResponseEntity.ok(new MessageResponse(OTP_SENT_MESSAGE));
         }
 
-        Optional<User> userOpt = userRepository.findAll().stream()
-                .filter(u -> email.equalsIgnoreCase(u.getEmail()))
-                .findFirst();
-
+        Optional<User> userOpt = userRepository.findByEmailIgnoreCase(email);
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(404).body(new MessageResponse("Email không tồn tại trong hệ thống."));
+            return ResponseEntity.ok(new MessageResponse(OTP_SENT_MESSAGE));
         }
 
-        // Generate OTP
-        int otpCodeInt = 100000 + new Random().nextInt(900000);
+        int otpCodeInt = 100000 + SECURE_RANDOM.nextInt(900000);
         String otpCode = String.valueOf(otpCodeInt);
 
-        // Delete old OTP if exists
-        otpRepository.deleteByEmail(email);
-
-        Otp otp = new Otp();
+        Otp otp = existingOtp.orElseGet(Otp::new);
         otp.setEmail(email);
-        otp.setOtp(otpCode);
+        otp.setOtp(passwordEncoder.encode(otpCode));
         otp.setExpiresAt(LocalDateTime.now().plusMinutes(10));
+        otp.setLastSentAt(LocalDateTime.now());
+        otp.setFailedAttempts(0);
         otpRepository.save(otp);
 
         try {
@@ -70,45 +74,46 @@ public class ForgotPasswordController {
             message.setText("Mã OTP của bạn là: " + otpCode + ". Mã có hiệu lực trong vòng 10 phút.");
             mailSender.send(message);
         } catch (Exception e) {
-            // Still return success in dev/test environment but log it, or return error as requested
-            // Since "Không bỏ qua lỗi", let's return error but log the OTP so we know it happened
-            return ResponseEntity.status(500).body(new MessageResponse("Lỗi gửi mail: " + e.getMessage()));
+            otpRepository.delete(otp);
+            return ResponseEntity.status(503).body(new MessageResponse("Không thể gửi mã xác thực. Vui lòng thử lại sau."));
         }
 
-        return ResponseEntity.ok(new MessageResponse("Mã OTP đã được gửi thành công!"));
+        return ResponseEntity.ok(new MessageResponse(OTP_SENT_MESSAGE));
     }
 
     @PostMapping("/reset")
     @Transactional
-    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String otpCode = request.get("otp");
-        String password = request.get("password");
-
-        if (email == null || otpCode == null || password == null) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Dữ liệu không hợp lệ."));
-        }
-
-        Optional<Otp> otpRecordOpt = otpRepository.findByEmailAndOtp(email, otpCode);
+    public ResponseEntity<?> resetPassword(@jakarta.validation.Valid @RequestBody ResetPasswordRequest request) {
+        String email = request.getEmail().trim();
+        Optional<Otp> otpRecordOpt = otpRepository.findFirstByEmailIgnoreCaseOrderByExpiresAtDesc(email);
         if (otpRecordOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Mã OTP không chính xác."));
+            return ResponseEntity.badRequest().body(new MessageResponse("Mã xác thực không hợp lệ hoặc đã hết hạn."));
         }
 
         Otp otpRecord = otpRecordOpt.get();
         if (LocalDateTime.now().isAfter(otpRecord.getExpiresAt())) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Mã OTP đã hết hạn."));
+            otpRepository.delete(otpRecord);
+            return ResponseEntity.badRequest().body(new MessageResponse("Mã xác thực không hợp lệ hoặc đã hết hạn."));
         }
 
-        Optional<User> userOpt = userRepository.findAll().stream()
-                .filter(u -> email.equalsIgnoreCase(u.getEmail()))
-                .findFirst();
+        if (!passwordEncoder.matches(request.getOtp(), otpRecord.getOtp())) {
+            otpRecord.setFailedAttempts(otpRecord.getFailedAttempts() + 1);
+            if (otpRecord.getFailedAttempts() >= MAX_FAILED_ATTEMPTS) {
+                otpRepository.delete(otpRecord);
+            } else {
+                otpRepository.save(otpRecord);
+            }
+            return ResponseEntity.badRequest().body(new MessageResponse("Mã xác thực không hợp lệ hoặc đã hết hạn."));
+        }
+
+        Optional<User> userOpt = userRepository.findByEmailIgnoreCase(email);
 
         if (userOpt.isEmpty()) {
-            return ResponseEntity.status(404).body(new MessageResponse("Không tìm thấy tài khoản."));
+            return ResponseEntity.badRequest().body(new MessageResponse("Mã xác thực không hợp lệ hoặc đã hết hạn."));
         }
 
         User user = userOpt.get();
-        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
         otpRepository.delete(otpRecord);

@@ -22,4 +22,10 @@ public class Otp {
 
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
+
+    @Column(name = "last_sent_at", nullable = false)
+    private LocalDateTime lastSentAt;
+
+    @Column(name = "failed_attempts", nullable = false)
+    private int failedAttempts;
 }

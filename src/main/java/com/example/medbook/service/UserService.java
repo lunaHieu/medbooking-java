@@ -92,6 +92,10 @@ public class UserService {
         User user = userRepository.findById(currentUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("User không tồn tại"));
 
+        if (newPassword == null || newPassword.length() < 8 || newPassword.length() > 72) {
+            throw new IllegalArgumentException("Mật khẩu mới phải có từ 8 đến 72 ký tự.");
+        }
+
         if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
             throw new IllegalArgumentException("Mật khẩu hiện tại không đúng.");
         }
